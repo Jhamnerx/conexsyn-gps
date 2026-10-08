@@ -156,6 +156,9 @@ class Device extends AbstractEntity implements DisplayInterface, FcmTokenableInt
         'mtc',
         'mininter',
         'mininter_type',
+        'safe_parking',
+        'safe_parking_geofence_id',
+        'safe_parking_alert_id'
     );
 
     protected $appends = [
@@ -177,6 +180,7 @@ class Device extends AbstractEntity implements DisplayInterface, FcmTokenableInt
         'custom_data' => 'array',
         'mtc' => 'boolean',
         'mininter' => 'boolean',
+        'safe_parking' => 'boolean',
     ];
 
     protected $searchable = [

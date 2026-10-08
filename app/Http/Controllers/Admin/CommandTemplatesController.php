@@ -75,7 +75,9 @@ class CommandTemplatesController extends Controller
         if (!$this->user->perm('device.device_type_id', 'view'))
             unset($adapties['device_types']);
 
-        return compact('types', 'protocols', 'adapties', 'deviceTypes');
+        $powerActions = CommandTemplate::getPowerActions();
+
+        return compact('types', 'protocols', 'adapties', 'deviceTypes', 'powerActions');
     }
 
     public function store(Request $request)

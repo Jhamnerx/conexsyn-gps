@@ -41,6 +41,12 @@
 @endif
 
 <div class="form-group">
+    {!! Form::label('power_action', trans('front.safe_parking_command_action') . ':') !!}
+    {!! Form::select('power_action', $powerActions, $item->power_action ?? null, ['class' => 'form-control']) !!}
+    <span class="help-block">{{ trans('front.safe_parking_command_action_hint') }}</span>
+</div>
+
+<div class="form-group">
     {!! Form::label('message', trans('validation.attributes.message') . ':') !!}
     {!! Form::textarea('message', $item->message ?? null, ['class' => 'form-control']) !!}
 </div>

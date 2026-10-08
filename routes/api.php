@@ -52,6 +52,9 @@ Route::group(['middleware' => ['auth.api', 'active_subscription'], 'namespace' =
     Route::get('devices/{device_id}/media', ['as' => 'api.device.media.index', 'uses' => 'DeviceMediaController@getImages']);
     Route::get('devices/{device_id}/media/file/{filename}', ['as' => 'api.device.media.get', 'uses' => 'DeviceMediaController@getFile']);
     Route::delete('devices/{device_id}/media/{filename?}', ['as' => 'api.device.media.delete', 'uses' => 'DeviceMediaController@remove']);
+
+    Route::get('safe_parking/{device_id}', ['as' => 'api.safe_parking.status', 'uses' => 'SafeParkingController@status']);
+    Route::any('safe_parking', ['as' => 'api.safe_parking.toggle', 'uses' => 'SafeParkingController@toggle']);
 });
 
 Route::group(['middleware' => [], 'namespace' => 'Api'], function () {

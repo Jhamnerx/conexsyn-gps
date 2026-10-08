@@ -1265,4 +1265,16 @@ return array(
     'diesel_electric' => 'Hybrid - Diesel/Electric',
     'propane' => 'LPG (Propane gas)',
     'methanol' => 'Methanol',
+
+    'safe_parking' => 'Safe parking',
+    'safe_parking_command_action' => 'Power action (safe parking)',
+    'safe_parking_command_action_hint' => 'If set, this template will be sent when safe parking is activated (cut) or deactivated (restore) for a matching device.',
+    'safe_parking_power_cut' => 'Cut power (parking)',
+    'safe_parking_power_restore' => 'Restore power',
+    'safe_parking_activated' => 'Safe parking activated',
+    'safe_parking_deactivated' => 'Safe parking deactivated',
+    'safe_parking_already_active' => 'Safe parking is already active',
+    'safe_parking_not_active' => 'Safe parking is not active',
+    'safe_parking_no_position' => 'The vehicle has no known position to protect',
+    'safe_parking_zone_out' => 'Safe parking - unauthorized movement',
 );

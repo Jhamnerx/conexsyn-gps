@@ -16,12 +16,16 @@ class CommandTemplate extends AbstractEntity
 
     protected $table = 'command_templates';
 
+    const POWER_ACTION_CUT = 'cut';
+    const POWER_ACTION_RESTORE = 'restore';
+
     protected $fillable = [
         'user_id',
         'title',
         'message',
         'protocol',
         'adapted',
+        'power_action',
     ];
 
     protected $searchable = [
@@ -78,6 +82,15 @@ class CommandTemplate extends AbstractEntity
         ];
     }
 
+    public static function getPowerActions(): array
+    {
+        return [
+            '0'                        => trans('front.none'),
+            self::POWER_ACTION_CUT     => trans('front.safe_parking_power_cut'),
+            self::POWER_ACTION_RESTORE => trans('front.safe_parking_power_restore'),
+        ];
+    }
+
     public function getAdaptedTitleAttribute($value)
     {
         return self::getAdapties()[$this->adapted] ?? trans('front.all');
@@ -91,6 +104,16 @@ class CommandTemplate extends AbstractEntity
     public function setAdaptedAttribute($value)
     {
         $this->attributes['adapted'] = empty($value) ? null : $value;
+    }
+
+    public function setPowerActionAttribute($value)
+    {
+        $this->attributes['power_action'] = empty($value) ? null : $value;
+    }
+
+    public function scopePowerAction(Builder $query, string $action): Builder
+    {
+        return $query->where('power_action', $action);
     }
 
     public function isAdaptedFromDevice($device): bool

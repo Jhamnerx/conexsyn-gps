@@ -1263,4 +1263,16 @@ return [
     'diesel_electric' => 'Híbrido - Diésel/Eléctrico',
     'propane' => 'GLP (gas propano)',
     'methanol' => 'Metanol',
+
+    'safe_parking' => 'Parqueo seguro',
+    'safe_parking_command_action' => 'Accion de energia (parqueo seguro)',
+    'safe_parking_command_action_hint' => 'Si se define, esta plantilla se enviara al activar el parqueo seguro (corte) o al desactivarlo (restablecer) para un dispositivo compatible.',
+    'safe_parking_power_cut' => 'Corte de corriente (parqueo)',
+    'safe_parking_power_restore' => 'Restablecer corriente',
+    'safe_parking_activated' => 'Parqueo seguro activado',
+    'safe_parking_deactivated' => 'Parqueo seguro desactivado',
+    'safe_parking_already_active' => 'El parqueo seguro ya esta activo',
+    'safe_parking_not_active' => 'El parqueo seguro no esta activo',
+    'safe_parking_no_position' => 'El vehiculo no tiene una ubicacion conocida para proteger',
+    'safe_parking_zone_out' => 'Parqueo seguro - movimiento no autorizado',
 ];
