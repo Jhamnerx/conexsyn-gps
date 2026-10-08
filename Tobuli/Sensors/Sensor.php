@@ -74,7 +74,10 @@ abstract class Sensor implements SensorInterface
             $showBy = static::$defaultShowType;
         }
 
-        return static::getInputs()[$showBy];
+        $inputs = static::getInputs();
+
+        // Unknown/legacy show types (e.g. 'sensor_value') fall back instead of crashing
+        return $inputs[$showBy] ?? $inputs[static::$defaultShowType] ?? reset($inputs);
     }
 
     public static function getShowTypes()
