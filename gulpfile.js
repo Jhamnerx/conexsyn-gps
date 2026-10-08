@@ -137,7 +137,7 @@ gulp.task('scripts', gulp.series(scriptTasks));
 
 gulp.task('sass', function(){
     //return gulp.src('resources/assets/scss/app.scss')
-    return gulp.src(['resources/assets/scss/templates/gpsubicar.scss', 'resources/assets/scss/templates/gpsubicar-dark.scss'])
+    return gulp.src(['resources/assets/scss/templates/conexsyn.scss', 'resources/assets/scss/templates/conexsyn-dark.scss'])
         .pipe(sourcemaps.init())
         .pipe(sass())
         .pipe(sourcemaps.write())

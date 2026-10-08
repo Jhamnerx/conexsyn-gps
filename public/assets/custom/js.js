@@ -1,6 +1,6 @@
-// Tema AirPatrol: el rediseño vive en el SCSS compilado (airpatrol.css /
-// airpatrol-dark.css); este skin inyectado solo aplica a los temas legacy.
-var __apThemeActive = !!document.querySelector('link[href*="airpatrol"],link[href*="gpsubicar"]');
+// Tema Conexsyn: el rediseño vive en el SCSS compilado (conexsyn.css /
+// conexsyn-dark.css); este skin inyectado solo aplica a los temas legacy.
+var __apThemeActive = !!document.querySelector('link[href*="conexsyn"]');
 
 var styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
@@ -2616,7 +2616,7 @@ if (!__apThemeActive) {
   globalScope.setInterval(() => {}, 4000);
 })();
 
-// Con el tema AirPatrol las pestañas viven en Blade (partials/sidenav);
+// Con el tema Conexsyn las pestañas viven en Blade (partials/sidenav);
 // la inyección solo aplica a los temas legacy.
 if (typeof $ !== "undefined" && !__apThemeActive) {
   $(".modal").addClass("fade-scale");

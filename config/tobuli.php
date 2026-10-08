@@ -582,8 +582,8 @@ return [
     ],
 
     'template_colors' => [
-        'gpsubicar'         => 'GPSUbicar',
-        'gpsubicar-dark'    => 'GPSUbicar Nocturno',
+        'conexsyn'          => 'Conexsyn',
+        'conexsyn-dark'     => 'Conexsyn Nocturno',
         'light-blue'        => 'Light Blue',
         'light-green'       => 'Light Green',
         'light-red'         => 'Light Red',

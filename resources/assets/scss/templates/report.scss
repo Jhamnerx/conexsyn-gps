@@ -1,5 +1,5 @@
 // ===================================================================
-// Reportes AirPatrol (HTML imprimible / email)
+// Reportes Conexsyn (HTML imprimible / email)
 // Sin webfonts externas: los reportes se inyectan inline y pueden
 // enviarse por correo — se usa stack de sistema.
 // ===================================================================
@@ -7,8 +7,10 @@ $font-family-sans-serif: "Segoe UI", system-ui, -apple-system, Roboto,
                          "Helvetica Neue", Arial, sans-serif;
 $ap-font-mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
 
-@import "../colouring/main-gpsubicar";
-@import "../colouring/base-airpatrol";
+@import "../colouring/main-blue";
+@import "../colouring/base-ligth";
+@import "../layout/variables";
+@import "../colouring/base-conexsyn";
 
 @import "../libraries/bootstrap/variables";
 @import "../libraries/bootstrap/mixins";

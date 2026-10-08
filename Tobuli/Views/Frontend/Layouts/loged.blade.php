@@ -12,7 +12,7 @@
     @include('Frontend.Layouts.partials.loading')
     @include('Frontend.Layouts.partials.header')
 
-    @if (str_starts_with(Appearance::getSetting('template_color') ?? '', 'gpsubicar'))
+    @if (str_starts_with(Appearance::getSetting('template_color') ?? '', 'conexsyn'))
         @include('Frontend.Layouts.partials.sidenav')
     @endif
 

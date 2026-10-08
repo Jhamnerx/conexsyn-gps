@@ -1,0 +1,13 @@
+// ===================================================================
+// Conexsyn — tema claro
+// Colores: los del template original light-blue (main-blue + base-ligth
+// + layout/variables). Forma y tipografía: colouring/base-conexsyn.
+// Capa de estilos propia: layout/conexsyn.
+// ===================================================================
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+@import '../colouring/main-blue';
+@import '../colouring/base-ligth';
+@import '../colouring/base-conexsyn';
+@import '../index';
+@import '../layout/conexsyn';

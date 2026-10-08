@@ -1,9 +1,16 @@
 // ===================================================================
-// AirPatrol — capa de rediseño
-// Se importa al final del template (como hace facelift): pule los
-// componentes por encima de Bootstrap 3 y los partials de layout,
-// sin cambiar dimensiones estructurales (alturas, anchos de sidebar)
-// de las que depende el JavaScript existente.
+// Conexsyn — capa de estilos personalizados
+// Se importa al final del template (como hace facelift): pule forma,
+// espaciado, tipografía y movimiento por encima de Bootstrap 3 y de
+// los partials de layout, y aporta los componentes propios (rail de
+// navegación, KPI del dashboard).
+//
+// Regla de la capa: NO redefine colores de texto, botones, fondos ni
+// bordes que el template original ya asigna. Los colores que usan los
+// componentes propios salen siempre de las variables del template
+// (light-blue / dark-blue), nunca de valores fijos. Tampoco cambia
+// dimensiones estructurales (alturas, anchos de sidebar) de las que
+// depende el JavaScript existente.
 // ===================================================================
 
 // -------------------------------------------------- base
@@ -269,7 +276,6 @@ body.ap-nav-collapsed .sidenav {
 
   .tab-pane-footer {
     border-top: 1px solid $color-border-200;
-    background: $color-bg-100;
   }
 }
 
@@ -285,14 +291,9 @@ body.ap-nav-collapsed .sidenav {
 }
 
 // tirador de colapso: sólido, sin esquinas en diagonal
+// (fondo y color de texto: los del template, en layout/buttons)
 .btn-collapse {
-  background: $color-bg-000;
-  color: $color-text-500;
   border: 1px solid $color-border-100;
-
-  &:hover {
-    color: $brand-primary;
-  }
 
   &.collapse-left {
     border-left: 0;
@@ -350,10 +351,6 @@ body.ap-nav-collapsed .sidenav {
 .group-list > li {
   transition: background-color 0.12s ease;
 
-  &.active {
-    background: rgba($brand-primary, 0.07);
-  }
-
   > .name {
     font-weight: 500;
   }
@@ -374,29 +371,6 @@ body.ap-nav-collapsed .sidenav {
     color 0.12s ease, box-shadow 0.12s ease;
 }
 
-.btn-primary {
-  &:hover,
-  &:focus {
-    background: $ap-primary-hover;
-    border-color: $ap-primary-hover;
-  }
-
-  &:active,
-  &.active {
-    background: $ap-primary-active;
-    border-color: $ap-primary-active;
-  }
-}
-
-.btn-default {
-  &:hover,
-  &:focus {
-    color: $brand-primary;
-    border-color: rgba($brand-primary, 0.55);
-    background: $btn-default-bg;
-  }
-}
-
 .btn.icon {
   border-radius: $border-radius-small;
 }
@@ -412,24 +386,14 @@ body.ap-nav-collapsed .sidenav {
   }
 }
 
-label {
-  color: $color-text-400;
-}
-
-.help-block {
-  color: $color-text-600;
-}
-
 .input-group-addon {
   border-radius: $border-radius-base;
-  color: $color-text-500;
 }
 
 // -------------------------------------------------- panels / cards / widgets
 .panel {
   border-radius: $border-radius-large;
   box-shadow: $ap-shadow-sm;
-  border-color: $color-border-200;
 }
 
 .panel-heading {
@@ -442,7 +406,6 @@ label {
 
 #widgets {
   .widget {
-    border-color: $color-border-100;
     border-radius: $border-radius-base $border-radius-base 0 0;
     box-shadow: none;
 
@@ -462,7 +425,6 @@ label {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: $table-list-head-color;
   border-bottom-width: 1px;
 }
 
@@ -472,7 +434,6 @@ label {
 
 // -------------------------------------------------- modales
 .modal-content {
-  border: 1px solid $color-border-200;
   border-radius: $modal-border-radius;
   box-shadow: $ap-shadow-md;
 }
@@ -491,7 +452,6 @@ label {
 
 .modal-footer {
   padding: 12px 20px;
-  border-top: 1px solid $color-border-200;
 
   .btn + .btn {
     margin-left: 6px;
@@ -505,7 +465,6 @@ label {
 // -------------------------------------------------- dropdowns
 .dropdown-menu {
   border-radius: $border-radius-large;
-  border-color: $color-border-100;
   box-shadow: $ap-shadow-md;
   padding: 6px;
 
@@ -584,11 +543,6 @@ label {
     + .btn {
       border-top: 1px solid $map-controls-btn-border-color;
     }
-
-    &.active {
-      background: $brand-primary;
-      color: $color-text-000;
-    }
   }
 }
 
@@ -596,12 +550,6 @@ label {
 .leaflet-popup-content-wrapper {
   border-radius: $border-radius-large;
   box-shadow: $ap-shadow-md;
-  background: $popup-body-bg;
-  color: $popup-body-color;
-}
-
-.leaflet-popup-tip {
-  background: $popup-body-bg;
 }
 
 .leaflet-container {
@@ -622,7 +570,7 @@ label {
 // -------------------------------------------------- bottombar / historial
 #bottom-history {
   border-top: 1px solid $color-border-100;
-  box-shadow: 0 -6px 18px -8px rgba(16, 31, 56, 0.14);
+  box-shadow: 0 -6px 18px -8px rgba(0, 0, 0, 0.14);
 
   .bottom-history-header {
     border-bottom: 1px solid $color-border-200;
@@ -642,10 +590,10 @@ label {
 }
 
 // -------------------------------------------------- login
+// Fondo y color de texto: los configurados en Apariencia
+// (login_page_background_color / login_page_text_color), como en el
+// template original.
 body.sign-in-layout {
-  background-color: $ap-navy;
-  background-image: linear-gradient(160deg, darken($ap-navy, 9%) 0%, $ap-navy 62%, lighten($ap-navy, 7%) 100%);
-
   .panel {
     box-shadow: $ap-shadow-md;
     border: 0;
@@ -671,15 +619,10 @@ body.sign-in-layout {
 
 // -------------------------------------------------- dashboard
 #dashboard {
-  .modal-content {
-    background: $body-bg;
-  }
-
   .dashboard-block {
     margin-bottom: 20px;
 
     .panel.panel-default {
-      border: 1px solid $color-border-200;
       box-shadow: $ap-shadow-sm;
       margin-bottom: 0;
       height: 100%;
@@ -689,17 +632,13 @@ body.sign-in-layout {
         font-weight: 600;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        color: $color-text-500;
-
-        .icon {
-          color: $brand-primary;
-        }
       }
     }
   }
 }
 
 // KPI de estados de flota (bloque device_status_counts)
+// Puntos: colores semánticos del template (brand-*), no valores fijos.
 .ap-kpi-list {
   list-style: none;
   margin: 0;
@@ -749,10 +688,10 @@ body.sign-in-layout {
   }
 
   &.ap-kpi--total .ap-kpi-dot { background: $brand-primary; }
-  &.ap-kpi--online .ap-kpi-dot { background: $ap-status-moving; }
-  &.ap-kpi--offline .ap-kpi-dot { background: $ap-status-offline; }
+  &.ap-kpi--online .ap-kpi-dot { background: $brand-success; }
+  &.ap-kpi--offline .ap-kpi-dot { background: $brand-danger; }
   &.ap-kpi--never-connected .ap-kpi-dot { background: $color-text-800; }
-  &.ap-kpi--expired .ap-kpi-dot { background: $ap-status-stopped; }
+  &.ap-kpi--expired .ap-kpi-dot { background: $brand-warning; }
 }
 
 // -------------------------------------------------- responsive (móvil)
@@ -845,19 +784,8 @@ body.sign-in-layout {
 }
 
 // -------------------------------------------------- plugins de formulario
-// bootstrap-select
-.bootstrap-select .btn {
-  border: 1px solid $input-border;
-  background: $input-bg;
-
-  &:hover,
-  &:focus {
-    border-color: $input-border-focus;
-    background: $input-bg-focus;
-  }
-}
-
-// datepicker / datetimepicker
+// datepicker / datetimepicker: el día activo toma el color de marca del
+// template en lugar del degradado azul propio del plugin
 .datepicker,
 .datetimepicker {
   border-radius: $border-radius-large;

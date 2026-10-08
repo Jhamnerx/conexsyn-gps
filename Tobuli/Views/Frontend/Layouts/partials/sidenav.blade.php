@@ -1,4 +1,4 @@
-{{-- Rail de navegación izquierdo (tema AirPatrol).
+{{-- Rail de navegación izquierdo (tema Conexsyn).
      Expandido: icono + texto · Colapsado: solo icono · Móvil: solo icono.
      Reemplaza las pestañas que assets/custom/js.js inyectaba en el sidebar. --}}
 
