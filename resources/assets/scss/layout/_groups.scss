@@ -1,0 +1,225 @@
+.group {
+  position: relative;
+
+  + .group {
+    margin-top: 3px;
+  }
+  .checkbox {
+    @extend .checkbox-inline;
+  }
+}
+.group-heading {
+  padding: $group-heading-padding-vertical $group-heading-padding-horizontal;
+  background-color: $group-heading-bg;
+  border-radius: $group-heading-border-radius;
+
+  display: table;
+  width: 100%;
+  color: $group-heading-color;
+  font-size: $group-heading-font-size;
+
+  > .checkbox {
+    display: table-cell;
+    width: 1%;
+  }
+
+  > .group-title {
+    position: relative;
+    display: table-cell;
+    width: 100%;
+    padding-left: $group-cell-padding-left;
+    padding-right: 20px;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    color: inherit;
+
+    vertical-align: middle;
+
+    @include text-overflow();
+    max-width: 1px;
+
+    cursor: pointer;
+
+    > .count {
+      display: inline;
+
+      &:before {
+        content: "(";
+      }
+      &:after {
+        content: ")";
+      }
+    }
+
+    &:after {
+      //content: $fa-var-minus;
+      position: absolute;
+      right: 0px;
+      top: auto;
+
+      @extend .ico;
+      content: "\e92e";
+
+      font-size: $group-collapse-status-collapse-font-size;
+      font-weight: $group-collapse-status-collapse-font-weight;
+      color: $group-collapse-status-collapse-color;
+      cursor: pointer;
+    }
+    &.collapsed {
+      color: $group-heading-collapse-color;
+
+      &:after {
+        content: "\e901";
+        color: $group-collapse-status-color;
+        font-size: $group-collapse-status-font-size;
+        font-weight: $group-collapse-status-font-weight;
+      }
+    }
+
+    > .icon {
+      margin-right: $group-heading-padding-horizontal;
+    }
+    /*
+    &[aria-expanded="true"] {
+      &:after {
+        @extend .fadeIn;
+        @extend .animated;
+      }
+    }
+    &[aria-expanded="false"] {
+      &:after {
+        @extend .rotateIn;
+        @extend .animated;
+      }
+    }*/
+  }
+
+  > .btn-group {
+    margin-left: 4px;
+    margin-right: -4px;
+
+    .btn.options:hover {
+      background: $color-bg-300;
+    }
+  }
+
+  &:hover {
+    color: $group-heading-hover-color;
+    background-color: $group-heading-hover-bg;
+
+    .status-collapse {
+      color: $brand-primary;
+    }
+
+    .group-title {
+      &:after {
+        color: $group-collapse-status-collapse-hover-color;
+      }
+      &.collapsed {
+        &:after {
+          color: $group-collapse-status-hover-color;
+        }
+      }
+    }
+  }
+}
+
+.group-body {
+  position: relative;
+}
+
+.group-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  color: $group-list-color;
+  font-size: $group-list-font-size;
+  background: $group-list-bg;
+
+  display: table;
+
+  > li {
+    border: $group-list-border;
+    border-radius: $group-list-border-radius;
+    display: table-row;
+    width: 100%;
+    position: relative;
+    text-align: left;
+
+    &:hover {
+      color: $group-list-hover-color;
+      background-color: $group-list-hover-bg;
+      cursor: pointer;
+    }
+
+    > .checkbox {
+      padding-top: $group-item-padding-vertical;
+      padding-bottom: $group-item-padding-vertical;
+      padding-left: $group-item-padding-horizontal;
+      display: table-cell;
+      width: 1%;
+      vertical-align: middle;
+    }
+
+    > .name {
+      display: table-cell;
+      width: 100%;
+      padding-top: $group-item-padding-vertical;
+      padding-bottom: $group-item-padding-vertical;
+      padding-left: $group-cell-padding-left;
+      padding-right: $group-cell-padding-right;
+      vertical-align: top;
+      @include text-overflow();
+      max-width: 1px;
+
+      [data-device="time"] {
+        font-size: 0.7em;
+        display: block;
+        color: $color-text-600;
+      }
+    }
+
+    > .details {
+      padding-top: $group-item-padding-vertical;
+      padding-bottom: $group-item-padding-vertical;
+      padding-left: $group-cell-padding-left;
+      //padding-right: $group-item-padding-horizontal;
+      color: $color-text-900;
+
+      display: table-cell;
+      width: 1%;
+      vertical-align: top;
+      white-space: nowrap;
+      text-align: right;
+
+      > * {
+        vertical-align: middle;
+        display: inline-block;
+      }
+      > * + * {
+        margin-left: 5px;
+      }
+
+      [data-device="time"] {
+        font-size: 8px;
+        display: block;
+        color: $color-text-900;
+      }
+    }
+
+    > *:last-child {
+      border-right: 4px solid transparent;
+    }
+
+    &.active {
+      background: $color-bg-100;
+
+      > *:last-child {
+        border-right-color: $brand-primary;
+      }
+    }
+  }
+
+}

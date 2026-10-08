@@ -1,0 +1,88 @@
+$cluster-border-width: 3px !default;
+$cluster-border-space: 4px !default;
+$space: $cluster-border-width + $cluster-border-space;
+
+$cluster-primary-color: $brand-primary !default;
+$cluster-secondary-color: $color-status-on !default;
+$cluster-text-color: $component-active-color !default;
+
+.cluster {
+  .cluster-inner {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+
+    &:after,
+    &:before {
+      content: ' ';
+      display: block;
+      position: absolute;
+      border: $cluster-border-width solid;
+      border-color: $cluster-secondary-color $cluster-secondary-color transparent $cluster-secondary-color;
+      border-radius: 50%;
+    }
+
+    &:before {
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    &:after {
+      left: $space;
+      top: $space;
+      @include calc('width', 44px, 100% - #{$space * 2});
+      @include calc('height', 44px, 100% - #{$space * 2});
+
+      border-color: $cluster-primary-color $cluster-primary-color transparent $cluster-primary-color;
+    }
+
+    b {
+      color: $cluster-text-color;
+      display: block;
+      position: absolute;
+      background: $cluster-primary-color;
+      border-radius: 50%;
+      line-height: 30px;
+      left: $space * 2;
+      top: $space * 2;
+
+      @include calc('width', 30px, 100% - #{$space * 2 * 2});
+      @include calc('height', 30px, 100% - #{$space * 2 * 2});
+    }
+  }
+
+  &.cluster-large {
+    .cluster-inner {
+      &:before {
+        border-color: $cluster-primary-color $cluster-primary-color transparent $cluster-primary-color;
+      }
+
+      &:after {
+        border-color: $cluster-secondary-color $cluster-secondary-color transparent $cluster-secondary-color;
+      }
+
+      b {
+        background: $cluster-secondary-color;
+      }
+    }
+  }
+}
+
+.leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
+  -webkit-transition: -webkit-transform 0.3s ease-out, opacity 0.3s ease-in;
+  -moz-transition: -moz-transform 0.3s ease-out, opacity 0.3s ease-in;
+  -o-transition: -o-transform 0.3s ease-out, opacity 0.3s ease-in;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-in;
+}
+
+.leaflet-cluster-spider-leg {
+  /* stroke-dashoffset (duration and function) should match with leaflet-marker-icon transform in order to track it exactly */
+  -webkit-transition: -webkit-stroke-dashoffset 0.3s ease-out, -webkit-stroke-opacity 0.3s ease-in;
+  -moz-transition: -moz-stroke-dashoffset 0.3s ease-out, -moz-stroke-opacity 0.3s ease-in;
+  -o-transition: -o-stroke-dashoffset 0.3s ease-out, -o-stroke-opacity 0.3s ease-in;
+  transition: stroke-dashoffset 0.3s ease-out, stroke-opacity 0.3s ease-in;
+}

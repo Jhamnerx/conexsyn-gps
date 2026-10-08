@@ -1,0 +1,142 @@
+// ===================================================================
+// AirPatrol — modo nocturno (centro de control)
+// Se importa ANTES de _base-airpatrol: estas variables ganan y el
+// resto de decisiones compartidas (tipografía, radios…) se heredan.
+// ===================================================================
+
+// -------------------------------------------------- neutros nocturnos
+$color-bg-000: #101b30;   // surface
+$color-bg-100: #16233c;   // surface-2
+$color-bg-200: #1c2b47;
+$color-bg-300: #24344f;
+
+$color-text-000: #ffffff;
+$color-text-100: #e8eef7; // darkest -> más claro
+$color-text-200: #c8d3e5;
+$color-text-300: #a6b4cc;
+$color-text-400: #a6b4cc;
+$color-text-500: #8494b0;
+$color-text-600: #6a7a96;
+$color-text-700: #5d6d89;
+$color-text-800: #465672;
+$color-text-900: #384864;
+
+$color-border-100: #24344f;
+$color-border-200: #1f2d48;
+$color-shadow:     rgba(0, 0, 0, 0.5);
+
+$gray-base:    #e8eef7;
+$gray-darker:  #c8d3e5;
+$gray-dark:    #8494b0;
+$gray:         #24344f;
+$gray-light:   #1c2b47;
+$gray-lighter: #16233c;
+
+$body-bg:      #0a1220;
+
+$close-color:       #e8eef7;
+$close-text-shadow: none;
+
+// -------------------------------------------------- marca en oscuro
+// (la marca nocturna se define en el template del cliente, p. ej.
+// templates/gpsubicar-dark.scss, antes de importar este archivo)
+
+// -------------------------------------------------- sombras
+$ap-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+$ap-shadow-md: 0 10px 28px -10px rgba(0, 0, 0, 0.6);
+
+// -------------------------------------------------- headings / iconos
+$heading-color: #a6b4cc;
+$icon-color:    #5d6d89;
+
+// -------------------------------------------------- botones
+$btn-default-color:  #c8d3e5;
+$btn-default-bg:     #16233c;
+$btn-default-border: #2c3e5f;
+
+// -------------------------------------------------- formularios
+$input-bg:                #16233c;
+$input-bg-disabled:       #1c2b47;
+$input-color:             #c8d3e5;
+$input-color-focus:       #e8eef7;
+$input-border:            #2c3e5f;
+$input-bg-focus:          #0d1626;
+$input-color-placeholder: #5d6d89;
+
+// -------------------------------------------------- tabs / navs
+$nav-link-hover-bg: #1c2b47;
+$nav-tabs-bg:       #101b30;
+
+// -------------------------------------------------- tablas
+$table-bg-accent:       #16233c;
+$table-bg-hover:        #1c2b47;
+$table-list-head-color: #8494b0;
+$table-list-head-bg:    #16233c;
+
+// -------------------------------------------------- modales
+$modal-content-bg:          #101b30;
+$modal-header-bg:           #101b30;
+$modal-footer-bg:           #16233c;
+$modal-header-border-color: #24344f;
+
+// -------------------------------------------------- alertas
+$alert-success-bg:     rgba(47, 213, 116, 0.12);
+$alert-success-text:   #7be3a8;
+$alert-success-border: rgba(47, 213, 116, 0.35);
+$alert-info-bg:        rgba(91, 141, 246, 0.12);
+$alert-info-text:      #9dbcfa;
+$alert-info-border:    rgba(91, 141, 246, 0.35);
+$alert-warning-bg:     rgba(245, 178, 60, 0.12);
+$alert-warning-text:   #f8cb7c;
+$alert-warning-border: rgba(245, 178, 60, 0.35);
+$alert-danger-bg:      rgba(242, 109, 109, 0.12);
+$alert-danger-text:    #f79c9c;
+$alert-danger-border:  rgba(242, 109, 109, 0.35);
+
+$state-success-text: #7be3a8;
+$state-success-bg:   rgba(47, 213, 116, 0.12);
+$state-info-text:    #9dbcfa;
+$state-info-bg:      rgba(91, 141, 246, 0.12);
+$state-warning-text: #f8cb7c;
+$state-warning-bg:   rgba(245, 178, 60, 0.12);
+$state-danger-text:  #f79c9c;
+$state-danger-bg:    rgba(242, 109, 109, 0.12);
+
+// -------------------------------------------------- labels / badges
+$label-default-bg: #465672;
+$badge-bg:         #465672;
+
+// -------------------------------------------------- tooltips
+$tooltip-bg: #1c2b47;
+
+// -------------------------------------------------- sidebar / grupos
+$group-heading-bg:       #16233c;
+$group-heading-hover-bg: #1c2b47;
+
+// -------------------------------------------------- scrollbar
+$scrollbar-thumb-bg: #384864;
+
+// -------------------------------------------------- mapa
+$map-controls-btn-bg:           #101b30;
+$map-controls-btn-color:        #c8d3e5;
+$map-controls-btn-hover-bg:     #1c2b47;
+$map-controls-btn-hover-color:  #e8eef7;
+$map-controls-btn-border-color: #24344f;
+
+// -------------------------------------------------- dropdowns
+$dropdown-link-color:       #c8d3e5;
+$dropdown-link-hover-color: #e8eef7;
+$dropdown-icon-color:       #6a7a96;
+
+// -------------------------------------------------- widgets / panels
+$widget-content-color:        #a6b4cc;
+$widget-content-icon-color:   #465672;
+$widget-col-background-color: #16233c;
+$panel-default-text:          #a6b4cc;
+
+// -------------------------------------------------- estados de flota (más luminosos)
+$ap-status-moving:  #2fd574;
+$ap-status-engine:  #5b8df6;
+$ap-status-stopped: #f5b23c;
+$ap-status-offline: #64748b;
+$ap-status-alert:   #f26d6d;

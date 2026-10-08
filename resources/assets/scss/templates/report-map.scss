@@ -1,0 +1,12 @@
+// ===================================================================
+// Mapa embebido en reportes AirPatrol
+// ===================================================================
+@import "../colouring/main-gpsubicar";
+@import "../colouring/base-airpatrol";
+@import "../layout/variables";
+@import "../libraries/bootstrap/variables";
+@import "../mixins/index";
+@import "../libraries/bootstrap/mixins";
+@import "../libraries/bootstrap-checkbox-mixins";
+
+@import '../libraries/leaflet/leaflet';

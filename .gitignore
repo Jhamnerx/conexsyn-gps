@@ -1,0 +1,14 @@
+/.idea
+/.idea/*
+/vendor
+/node_modules
+/node_modules/*
+.env
+_ide_helper.php
+/.vscode
+/.vscode/*
+/public/assets/js/*-debug.js
+/socket/node_modules
+/socket/node_modules/*
+.phpstorm.meta.php
+_ide_helper_models.php

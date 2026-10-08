@@ -1,0 +1,886 @@
+// ===================================================================
+// AirPatrol — capa de rediseño
+// Se importa al final del template (como hace facelift): pule los
+// componentes por encima de Bootstrap 3 y los partials de layout,
+// sin cambiar dimensiones estructurales (alturas, anchos de sidebar)
+// de las que depende el JavaScript existente.
+// ===================================================================
+
+// -------------------------------------------------- base
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba($brand-primary, 0.22);
+}
+
+a {
+  transition: color 0.12s ease;
+}
+
+// telemetría en monoespaciada: placas, velocidades, horas
+[data-device="speed"],
+[data-device="time"],
+[data-device="time_text"],
+.datetime,
+.badge-history {
+  font-family: $ap-font-mono;
+  font-variant-numeric: tabular-nums;
+}
+
+// foco visible consistente (accesibilidad)
+.btn:focus-visible,
+.form-control:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgba($brand-primary, 0.85);
+  outline-offset: 1px;
+}
+
+// -------------------------------------------------- header / navbar
+#header {
+  .navbar-main,
+  .main-navbar {
+    border-width: 0 0 1px;
+    box-shadow: $ap-shadow-sm;
+  }
+
+  .navbar-nav > li > a {
+    transition: color 0.12s ease, background-color 0.12s ease;
+  }
+
+  .navbar-nav > li > a > .badge {
+    font-family: $ap-font-mono;
+    font-weight: 600;
+    border-radius: 999px;
+  }
+}
+
+// se retira la cinta plegada en diagonal del header clásico
+#header.folded {
+  &:before {
+    display: none !important;
+  }
+
+  @media (min-width: $grid-float-breakpoint) {
+    .navbar {
+      background-color: $navbar-main-bg;
+
+      .navbar-brand,
+      .navbar-nav {
+        border-bottom: 0;
+      }
+
+      .navbar-brand {
+        &:before,
+        &:after {
+          display: none !important;
+        }
+      }
+
+      .navbar-nav {
+        &:before,
+        &:after {
+          display: none !important;
+        }
+      }
+    }
+  }
+}
+
+// -------------------------------------------------- rail de navegación
+// La navegación vive en Blade (partials/sidenav): expandida muestra
+// icono + texto, colapsada solo icono. El ancho se propaga por
+// --ap-rail para desplazar sidebar, bottombar y controles.
+:root {
+  --ap-rail: 200px;
+}
+
+body.ap-nav-collapsed {
+  --ap-rail: 56px;
+}
+
+.sidenav {
+  position: absolute;
+  top: $sidebar-top-space;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  width: var(--ap-rail);
+  display: flex;
+  flex-direction: column;
+  background: $color-bg-000;
+  border-right: 1px solid $color-border-100;
+  transition: width 0.22s ease;
+  overflow: hidden;
+
+  .sidenav-menu {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    > li + li {
+      margin-top: 2px;
+    }
+
+    > li.sn-sep {
+      height: 1px;
+      margin: 8px 4px;
+      background: $color-border-200;
+    }
+
+    > li > a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 10px;
+      border-radius: $border-radius-base;
+      color: $color-text-400;
+      font-size: $font-size-base;
+      font-weight: 600;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: color 0.12s ease, background-color 0.12s ease;
+
+      &:hover,
+      &:focus {
+        color: $color-text-100;
+        background: $nav-link-hover-bg;
+        text-decoration: none;
+      }
+    }
+
+    > li.active > a {
+      color: $color-text-000;
+      background: $brand-primary;
+    }
+  }
+
+  .sn-ico {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    display: block;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .sn-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidenav-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 8px 0;
+    padding: 8px 10px;
+    border: 0;
+    border-bottom: 1px solid $color-border-200;
+    border-radius: $border-radius-base $border-radius-base 0 0;
+    background: transparent;
+    color: $color-text-600;
+    font-size: $font-size-base - 1;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      color: $brand-primary;
+      background: $nav-link-hover-bg;
+    }
+
+    .sn-chev-r {
+      display: none;
+    }
+  }
+}
+
+body.ap-nav-collapsed .sidenav {
+  .sidenav-menu > li > a,
+  .sidenav-toggle {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .sn-text {
+    display: none;
+  }
+
+  .sidenav-toggle .sn-chev-l {
+    display: none;
+  }
+
+  .sidenav-toggle .sn-chev-r {
+    display: block;
+  }
+}
+
+// el rail desplaza el sidebar, el bottombar y los controles izquierdos
+.sidebar.left {
+  left: var(--ap-rail);
+  transition: left 0.22s ease, width 0.5s ease;
+}
+
+#bottombar {
+  width: auto;
+  left: var(--ap-rail);
+  transition: left 0.22s ease;
+}
+
+.map-controls.top-left {
+  margin-left: var(--ap-rail);
+}
+
+// modo mapa completo (app.mapFull oculta header/sidebar): el rail también
+#header.hidden ~ .sidenav {
+  display: none;
+}
+
+#header.hidden ~ #bottombar {
+  left: 0;
+}
+
+// -------------------------------------------------- sidebar
+.sidebar {
+  .sidebar-content {
+    box-shadow: $ap-shadow-sm;
+  }
+
+  // la fila de pestañas original queda oculta pero en el DOM:
+  // el mecanismo de tabs de Bootstrap y app.openTab dependen de ella
+  > .sidebar-content > .nav-tabs.nav-default {
+    display: none;
+  }
+
+  .tab-pane-header {
+    border-bottom: 1px solid $color-border-200;
+  }
+
+  .tab-pane-footer {
+    border-top: 1px solid $color-border-200;
+    background: $color-bg-100;
+  }
+}
+
+// portado de js.js (reglas funcionales del colapso)
+#sidebar.collapsed {
+  .input-group {
+    display: none;
+  }
+
+  .tab-content .tab-pane.active {
+    display: none;
+  }
+}
+
+// tirador de colapso: sólido, sin esquinas en diagonal
+.btn-collapse {
+  background: $color-bg-000;
+  color: $color-text-500;
+  border: 1px solid $color-border-100;
+
+  &:hover {
+    color: $brand-primary;
+  }
+
+  &.collapse-left {
+    border-left: 0;
+    border-radius: 0 $border-radius-base $border-radius-base 0;
+    box-shadow: $ap-shadow-sm;
+
+    &:before,
+    &:after {
+      display: none;
+    }
+  }
+
+  &.collapse-right {
+    border-right: 0;
+    border-radius: $border-radius-base 0 0 $border-radius-base;
+    box-shadow: $ap-shadow-sm;
+
+    &:before,
+    &:after {
+      display: none;
+    }
+  }
+
+  &.collapse-top {
+    border-bottom: 0;
+    border-radius: $border-radius-base $border-radius-base 0 0;
+    box-shadow: $ap-shadow-sm;
+
+    &:before,
+    &:after {
+      display: none;
+    }
+  }
+
+  &.collapse-bottom {
+    border-top: 0;
+    border-radius: 0 0 $border-radius-base $border-radius-base;
+
+    &:before,
+    &:after {
+      display: none;
+    }
+  }
+}
+
+// grupos de dispositivos
+.group-heading {
+  border-radius: $border-radius-base;
+
+  > .group-title {
+    font-weight: 600;
+  }
+}
+
+.group-list > li {
+  transition: background-color 0.12s ease;
+
+  &.active {
+    background: rgba($brand-primary, 0.07);
+  }
+
+  > .name {
+    font-weight: 500;
+  }
+}
+
+// puntos de estado: un poco más grandes y con halo
+[data-device="status"],
+.device-status,
+.status {
+  width: 11px;
+  height: 11px;
+  box-shadow: 0 0 0 2px rgba($color-text-100, 0.06);
+}
+
+// -------------------------------------------------- botones
+.btn {
+  transition: background-color 0.12s ease, border-color 0.12s ease,
+    color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn-primary {
+  &:hover,
+  &:focus {
+    background: $ap-primary-hover;
+    border-color: $ap-primary-hover;
+  }
+
+  &:active,
+  &.active {
+    background: $ap-primary-active;
+    border-color: $ap-primary-active;
+  }
+}
+
+.btn-default {
+  &:hover,
+  &:focus {
+    color: $brand-primary;
+    border-color: rgba($brand-primary, 0.55);
+    background: $btn-default-bg;
+  }
+}
+
+.btn.icon {
+  border-radius: $border-radius-small;
+}
+
+// -------------------------------------------------- formularios
+.form-control {
+  transition: border-color 0.12s ease, background-color 0.12s ease,
+    box-shadow 0.12s ease;
+  box-shadow: none;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($brand-primary, 0.16);
+  }
+}
+
+label {
+  color: $color-text-400;
+}
+
+.help-block {
+  color: $color-text-600;
+}
+
+.input-group-addon {
+  border-radius: $border-radius-base;
+  color: $color-text-500;
+}
+
+// -------------------------------------------------- panels / cards / widgets
+.panel {
+  border-radius: $border-radius-large;
+  box-shadow: $ap-shadow-sm;
+  border-color: $color-border-200;
+}
+
+.panel-heading {
+  border-radius: $border-radius-large $border-radius-large 0 0;
+}
+
+.panel-footer {
+  border-radius: 0 0 $border-radius-large $border-radius-large;
+}
+
+#widgets {
+  .widget {
+    border-color: $color-border-100;
+    border-radius: $border-radius-base $border-radius-base 0 0;
+    box-shadow: none;
+
+    + .widget {
+      margin-left: 6px;
+    }
+  }
+
+  .widget-heading {
+    font-weight: 600;
+  }
+}
+
+// -------------------------------------------------- tablas
+.table > thead > tr > th {
+  font-size: $font-size-base - 2;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $table-list-head-color;
+  border-bottom-width: 1px;
+}
+
+.table > tbody > tr {
+  transition: background-color 0.1s ease;
+}
+
+// -------------------------------------------------- modales
+.modal-content {
+  border: 1px solid $color-border-200;
+  border-radius: $modal-border-radius;
+  box-shadow: $ap-shadow-md;
+}
+
+.modal-header {
+  padding: 14px 20px;
+
+  .modal-title {
+    font-weight: 600;
+  }
+}
+
+.modal-body {
+  padding: 18px 20px;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid $color-border-200;
+
+  .btn + .btn {
+    margin-left: 6px;
+  }
+}
+
+.modal-backdrop.in {
+  opacity: 0.55;
+}
+
+// -------------------------------------------------- dropdowns
+.dropdown-menu {
+  border-radius: $border-radius-large;
+  border-color: $color-border-100;
+  box-shadow: $ap-shadow-md;
+  padding: 6px;
+
+  > li > a {
+    border-radius: $border-radius-base;
+    transition: background-color 0.1s ease;
+  }
+
+  .divider {
+    margin: 6px 4px;
+  }
+}
+
+// -------------------------------------------------- badges / labels
+.badge {
+  font-family: $ap-font-mono;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.label {
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.2em 0.8em 0.3em;
+}
+
+// -------------------------------------------------- alertas / toastr
+.alert {
+  border-radius: $border-radius-large;
+}
+
+#toast-container > div {
+  border-radius: $border-radius-large !important;
+  box-shadow: $ap-shadow-md !important;
+  opacity: 0.98;
+}
+
+// -------------------------------------------------- tooltips
+.tooltip-inner {
+  border-radius: $border-radius-base;
+  padding: 5px 10px;
+  font-size: $font-size-base - 1;
+}
+
+// -------------------------------------------------- paginación
+.pagination > li {
+  > a,
+  > span {
+    border-radius: $border-radius-base;
+    margin: 0 2px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+  }
+}
+
+// -------------------------------------------------- mapa
+.map-controls {
+  &.top-right {
+    right: 12px;
+  }
+
+  &.bottom-right {
+    right: 12px;
+  }
+
+  .btn-group-vertical {
+    border-radius: $border-radius-large;
+    overflow: hidden;
+    box-shadow: $ap-shadow-md;
+    border: 1px solid $map-controls-btn-border-color;
+  }
+
+  .btn {
+    border: 0;
+    transition: background-color 0.12s ease, color 0.12s ease;
+
+    + .btn {
+      border-top: 1px solid $map-controls-btn-border-color;
+    }
+
+    &.active {
+      background: $brand-primary;
+      color: $color-text-000;
+    }
+  }
+}
+
+// popups de Leaflet
+.leaflet-popup-content-wrapper {
+  border-radius: $border-radius-large;
+  box-shadow: $ap-shadow-md;
+  background: $popup-body-bg;
+  color: $popup-body-color;
+}
+
+.leaflet-popup-tip {
+  background: $popup-body-bg;
+}
+
+.leaflet-container {
+  font-family: $font-family-sans-serif;
+}
+
+.leaflet-control-layers {
+  border-radius: $border-radius-large !important;
+  box-shadow: $ap-shadow-md !important;
+}
+
+// etiquetas de los marcadores en el mapa
+.leaflet-marker-icon .name {
+  font-family: $font-family-sans-serif;
+  font-weight: 600;
+}
+
+// -------------------------------------------------- bottombar / historial
+#bottom-history {
+  border-top: 1px solid $color-border-100;
+  box-shadow: 0 -6px 18px -8px rgba(16, 31, 56, 0.14);
+
+  .bottom-history-header {
+    border-bottom: 1px solid $color-border-200;
+  }
+
+  #hoverdata,
+  #hoverdata-date {
+    font-family: $ap-font-mono;
+    font-size: $font-size-base - 1;
+  }
+}
+
+.history {
+  box-shadow: none;
+  border-top: 1px solid $color-border-200;
+  border-bottom: 1px solid $color-border-200;
+}
+
+// -------------------------------------------------- login
+body.sign-in-layout {
+  background-color: $ap-navy;
+  background-image: linear-gradient(160deg, darken($ap-navy, 9%) 0%, $ap-navy 62%, lighten($ap-navy, 7%) 100%);
+
+  .panel {
+    box-shadow: $ap-shadow-md;
+    border: 0;
+    border-radius: $border-radius-large + 4;
+    overflow: hidden;
+  }
+
+  .panel-background {
+    border-radius: $border-radius-large + 4;
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+}
+
+// -------------------------------------------------- admin
+.admin-layout {
+  > .content .panel {
+    border-radius: $border-radius-large;
+  }
+}
+
+// -------------------------------------------------- dashboard
+#dashboard {
+  .modal-content {
+    background: $body-bg;
+  }
+
+  .dashboard-block {
+    margin-bottom: 20px;
+
+    .panel.panel-default {
+      border: 1px solid $color-border-200;
+      box-shadow: $ap-shadow-sm;
+      margin-bottom: 0;
+      height: 100%;
+
+      .panel-heading .panel-title {
+        font-size: $font-size-base - 1;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: $color-text-500;
+
+        .icon {
+          color: $brand-primary;
+        }
+      }
+    }
+  }
+}
+
+// KPI de estados de flota (bloque device_status_counts)
+.ap-kpi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ap-kpi {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 2px;
+  border-bottom: 1px solid $color-border-200;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  .ap-kpi-dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: $color-text-800;
+  }
+
+  .ap-kpi-label {
+    flex: 1;
+    min-width: 0;
+    color: $color-text-400;
+    font-size: $font-size-base;
+  }
+
+  .ap-kpi-value {
+    font-family: $ap-font-mono;
+    font-variant-numeric: tabular-nums;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1;
+    color: $color-text-100;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: $brand-primary;
+      text-decoration: none;
+    }
+  }
+
+  &.ap-kpi--total .ap-kpi-dot { background: $brand-primary; }
+  &.ap-kpi--online .ap-kpi-dot { background: $ap-status-moving; }
+  &.ap-kpi--offline .ap-kpi-dot { background: $ap-status-offline; }
+  &.ap-kpi--never-connected .ap-kpi-dot { background: $color-text-800; }
+  &.ap-kpi--expired .ap-kpi-dot { background: $ap-status-stopped; }
+}
+
+// -------------------------------------------------- responsive (móvil)
+@media (max-width: $screen-xs-max) {
+  // rail siempre en modo icono en móvil
+  body,
+  body.ap-nav-collapsed {
+    --ap-rail: 52px;
+  }
+
+  .sidenav {
+    .sidenav-menu > li > a {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .sn-text {
+      display: none;
+    }
+
+    .sidenav-toggle {
+      display: none;
+    }
+  }
+
+  // el sidebar se comporta como drawer sobre el mapa
+  .sidebar {
+    width: min(86vw, 340px);
+
+    .sidebar-content {
+      box-shadow: $ap-shadow-md;
+    }
+
+    &.collapsed {
+      width: 0;
+
+      .sidebar-content {
+        box-shadow: none;
+      }
+    }
+
+    .form-control {
+      min-width: 0;
+    }
+  }
+
+  // controles del mapa más compactos
+  .map-controls {
+    &.top-right,
+    &.bottom-right {
+      right: 8px;
+    }
+
+    .btn {
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 13px;
+    }
+
+    .btn-group-vertical {
+      margin-bottom: 8px;
+    }
+  }
+
+  // modales a borde de pantalla
+  .modal-dialog {
+    margin: 10px;
+  }
+
+  .modal-full {
+    margin: 6px;
+  }
+
+  // historial inferior no tapa todo el mapa
+  #bottom-history {
+    max-height: 55%;
+  }
+
+  // dashboard a ancho completo
+  #dashboard .container {
+    width: auto;
+  }
+
+  // tablas del panel admin con scroll horizontal propio
+  .admin-layout .panel {
+    overflow-x: auto;
+  }
+}
+
+// -------------------------------------------------- plugins de formulario
+// bootstrap-select
+.bootstrap-select .btn {
+  border: 1px solid $input-border;
+  background: $input-bg;
+
+  &:hover,
+  &:focus {
+    border-color: $input-border-focus;
+    background: $input-bg-focus;
+  }
+}
+
+// datepicker / datetimepicker
+.datepicker,
+.datetimepicker {
+  border-radius: $border-radius-large;
+
+  table tr td,
+  table tr th {
+    border-radius: $border-radius-base;
+  }
+
+  table tr td.active,
+  table tr td.active:hover {
+    background-image: none;
+    background-color: $brand-primary !important;
+  }
+
+  table tr td.today {
+    background-image: none;
+    background-color: rgba($brand-primary, 0.15) !important;
+    color: $color-text-100;
+  }
+}
+
+// colorpicker
+.colorpicker {
+  border-radius: $border-radius-large;
+}

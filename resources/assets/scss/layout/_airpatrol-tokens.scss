@@ -1,0 +1,77 @@
+// ===================================================================
+// AirPatrol — design tokens como CSS custom properties
+// Fuente única de verdad en runtime: reemplaza las variables que
+// public/assets/custom/js.js inyectaba por JavaScript.
+// ===================================================================
+
+:root {
+  // marca
+  --ap-navy:            #{$ap-navy};
+  --ap-primary:         #{$brand-primary};
+  --ap-primary-hover:   #{$ap-primary-hover};
+  --ap-primary-active:  #{$ap-primary-active};
+  --ap-accent:          #{$ap-accent};
+
+  // superficies y texto
+  --ap-bg:              #{$body-bg};
+  --ap-surface:         #{$color-bg-000};
+  --ap-surface-2:       #{$color-bg-100};
+  --ap-border:          #{$color-border-100};
+  --ap-text:            #{$color-text-100};
+  --ap-text-2:          #{$color-text-400};
+  --ap-text-muted:      #{$color-text-600};
+
+  // estados de flota
+  --ap-status-moving:   #{$ap-status-moving};
+  --ap-status-engine:   #{$ap-status-engine};
+  --ap-status-stopped:  #{$ap-status-stopped};
+  --ap-status-offline:  #{$ap-status-offline};
+  --ap-status-alert:    #{$ap-status-alert};
+
+  // historial
+  --ap-track-day:       #{$ap-track-day};
+  --ap-track-night:     #{$ap-track-night};
+
+  // forma
+  --ap-radius-sm:       #{$border-radius-small};
+  --ap-radius-md:       #{$border-radius-base};
+  --ap-radius-lg:       #{$border-radius-large};
+  --ap-shadow-sm:       #{$ap-shadow-sm};
+  --ap-shadow-md:       #{$ap-shadow-md};
+  --ap-font-mono:       #{$ap-font-mono};
+}
+
+// -------------------------------------------------------------------
+// Remapeo semántico de estados
+// El JS existente (model/device.js, listview.js) pinta los puntos de
+// estado con colores CSS literales vía style="background-color: X".
+// Se remapean aquí sin tocar JavaScript:
+//   green  (moving)  -> verde de sistema
+//   blue   (engine)  -> azul motor
+//   yellow (stopped) -> ámbar
+//   red    (offline) -> GRIS (el rojo queda solo para alertas)
+// -------------------------------------------------------------------
+[data-device="status"],
+.device-status,
+.status {
+  &[style*="background-color: green"],
+  &[style*="background: green"] {
+    background: $ap-status-moving !important;
+    border-color: $ap-status-moving !important;
+  }
+  &[style*="background-color: blue"],
+  &[style*="background: blue"] {
+    background: $ap-status-engine !important;
+    border-color: $ap-status-engine !important;
+  }
+  &[style*="background-color: yellow"],
+  &[style*="background: yellow"] {
+    background: $ap-status-stopped !important;
+    border-color: $ap-status-stopped !important;
+  }
+  &[style*="background-color: red"],
+  &[style*="background: red"] {
+    background: $ap-status-offline !important;
+    border-color: $ap-status-offline !important;
+  }
+}

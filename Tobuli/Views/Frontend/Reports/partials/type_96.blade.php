@@ -1,0 +1,1 @@
+@extends('Frontend.Reports.partials.type_75')

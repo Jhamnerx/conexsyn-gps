@@ -1,0 +1,19 @@
+// ===================================================================
+// GPSUbicar — modo nocturno
+// La marca nocturna se define aquí (aclara sobre fondo oscuro) y la
+// base oscura compartida se importa después sin colores de marca.
+// ===================================================================
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+@import '../colouring/main-gpsubicar';
+
+// marca en oscuro: el hover aclara
+$brand-primary:     #3f94e0;
+$ap-primary-hover:  #5fa8e8;
+$ap-primary-active: #7fbcef;
+
+@import '../colouring/base-airpatrol-dark';
+@import '../colouring/base-airpatrol';
+@import '../index';
+@import '../layout/airpatrol-tokens';
+@import '../layout/airpatrol';

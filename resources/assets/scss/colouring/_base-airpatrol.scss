@@ -1,0 +1,187 @@
+// ===================================================================
+// AirPatrol — base clara + decisiones compartidas del design system
+// Todo con !default: el tema nocturno (_base-airpatrol-dark) se
+// importa antes y gana donde redefine.
+// ===================================================================
+
+// -------------------------------------------------- neutros (fríos)
+$color-bg-000: #ffffff !default;   // surface
+$color-bg-100: #f7f9fc !default;   // surface-2
+$color-bg-200: #eef2f7 !default;
+$color-bg-300: #e3e9f1 !default;
+
+$color-text-000: #ffffff !default;
+$color-text-100: #12233f !default; // darkest
+$color-text-200: #2c3e5f !default; // darker
+$color-text-300: #3d4f73 !default; // dark
+$color-text-400: #47597a !default; // normal
+$color-text-500: #5c6d8e !default; // light
+$color-text-600: #8393ad !default; // lighter
+$color-text-700: #97a5bc !default;
+$color-text-800: #b6c1d4 !default;
+$color-text-900: #cbd4e2 !default;
+
+$color-border-100: #dfe6ef !default;
+$color-border-200: #e9eef5 !default;
+$color-shadow:     rgba(16, 31, 56, 0.14) !default;
+
+$gray-base:    #12233f !default;
+$gray-darker:  #2c3e5f !default;
+$gray-dark:    #5c6d8e !default;
+$gray:         #e3e9f1 !default;
+$gray-light:   #eef2f7 !default;
+$gray-lighter: #f7f9fc !default;
+
+$body-bg:      #f2f5f9 !default;
+
+// -------------------------------------------------- tipografía
+$font-family-sans-serif: "IBM Plex Sans", -apple-system, BlinkMacSystemFont,
+                         "Segoe UI", Roboto, sans-serif !default;
+$ap-font-mono:           "IBM Plex Mono", ui-monospace, "Cascadia Mono",
+                         Consolas, monospace !default;
+
+$font-size-base:     13px !default;
+$line-height-base:   1.45 !default;
+
+// -------------------------------------------------- radios
+$border-radius-base:  6px !default;
+$border-radius-large: 10px !default;
+$border-radius-small: 4px !default;
+$modal-border-radius: 14px !default;
+
+// -------------------------------------------------- sombras (2 niveles)
+$ap-shadow-sm: 0 1px 2px rgba(16, 31, 56, 0.06) !default;
+$ap-shadow-md: 0 8px 24px -8px rgba(16, 31, 56, 0.28) !default;
+
+// -------------------------------------------------- estado on
+$color-status-on: $ap-status-moving !default;
+
+// -------------------------------------------------- headings / iconos
+$heading-color: #47597a !default;
+$icon-color:    #97a5bc !default;
+
+// -------------------------------------------------- botones
+$btn-font-weight:    600 !default;
+$btn-default-color:  #3d4f73 !default;
+$btn-default-bg:     #ffffff !default;
+$btn-default-border: #dfe6ef !default;
+$padding-base-vertical:   7px !default;
+$padding-base-horizontal: 14px !default;
+
+// -------------------------------------------------- formularios
+$input-bg:                #f7f9fc !default;
+$input-bg-disabled:       #eef2f7 !default;
+$input-color:             #2c3e5f !default;
+$input-color-focus:       #12233f !default;
+$input-border:            #dfe6ef !default;
+$input-border-focus:      $brand-primary !default;
+$input-bg-focus:          #ffffff !default;
+$input-color-placeholder: #97a5bc !default;
+$input-label-font-weight: 600 !default;
+
+// -------------------------------------------------- checkbox / switch
+$checkbox-border-radius: 5px !default;
+$checkbox-size:          18px !default;
+
+// -------------------------------------------------- navbar
+$navbar-main-weight: 500 !default;
+
+// -------------------------------------------------- tabs / navs
+$nav-link-bg:                     transparent !default;
+$nav-link-hover-bg:               #eef2f7 !default;
+$nav-tabs-weight:                 600 !default;
+$nav-tabs-bg:                     #ffffff !default;
+$nav-tabs-border-radius:          0 !default;
+$nav-tabs-active-link-hover-color: $brand-primary !default;
+
+// -------------------------------------------------- tablas
+$table-cell-padding:    10px !default;
+$table-bg-accent:       #f7f9fc !default;
+$table-bg-hover:        #eef2f7 !default;
+$table-list-head-color: #5c6d8e !default;
+$table-list-head-bg:    #f2f5f9 !default;
+
+// -------------------------------------------------- modales
+$modal-content-bg:          #ffffff !default;
+$modal-header-bg:           #ffffff !default;
+$modal-footer-bg:           #f7f9fc !default;
+$modal-header-border-color: #e9eef5 !default;
+
+// -------------------------------------------------- alertas (tintes suaves)
+$alert-success-bg:     #e8f7ee !default;
+$alert-success-text:   #116b37 !default;
+$alert-success-border: #bfe8cf !default;
+$alert-info-bg:        #e9f0fe !default;
+$alert-info-text:      #1d4fbe !default;
+$alert-info-border:    #c4d7fb !default;
+$alert-warning-bg:     #fdf3e1 !default;
+$alert-warning-text:   #92600a !default;
+$alert-warning-border: #f4dcae !default;
+$alert-danger-bg:      #fdecec !default;
+$alert-danger-text:    #a61b1b !default;
+$alert-danger-border:  #f5c6c6 !default;
+
+$state-success-text:   #116b37 !default;
+$state-success-bg:     #e8f7ee !default;
+$state-info-text:      #1d4fbe !default;
+$state-info-bg:        #e9f0fe !default;
+$state-warning-text:   #92600a !default;
+$state-warning-bg:     #fdf3e1 !default;
+$state-danger-text:    #a61b1b !default;
+$state-danger-bg:      #fdecec !default;
+
+// -------------------------------------------------- labels / badges
+// (con los neutros claros, los defaults de Bootstrap 3 quedarían
+// blanco-sobre-gris-claro: se fijan colores legibles)
+$label-default-bg: #64748b !default;
+$badge-color:      #ffffff !default;
+$badge-bg:         #64748b !default;
+$badge-active-color: $brand-primary !default;
+$badge-active-bg:  #ffffff !default;
+
+// -------------------------------------------------- tooltips
+$tooltip-bg:      #12233f !default;
+$tooltip-opacity: 0.96 !default;
+
+// -------------------------------------------------- sidebar / grupos
+$sidebar-top-space:               42px !default;
+$sidebar-padding-horizontal:      10px !default;
+$sidebar-padding-vertical:        10px !default;
+$group-padding-horizontal:        12px !default;
+$group-heading-padding-vertical:  9px !default;
+$group-item-padding-vertical:     9px !default;
+$group-heading-bg:                #f2f5f9 !default;
+$group-heading-hover-bg:          #eef2f7 !default;
+
+// -------------------------------------------------- scrollbar
+$scrollbar-size:         8px !default;
+$scrollbar-track-bg:     transparent !default;
+$scrollbar-track-border: transparent !default;
+$scrollbar-thumb-bg:     #cbd4e2 !default;
+$scrollbar-thumb-border: transparent !default;
+
+// -------------------------------------------------- mapa
+$map-controls-btn-bg:           #ffffff !default;
+$map-controls-btn-color:        #3d4f73 !default;
+$map-controls-btn-hover-bg:     #f2f5f9 !default;
+$map-controls-btn-hover-color:  #12233f !default;
+$map-controls-btn-border-color: #dfe6ef !default;
+
+// -------------------------------------------------- dropdowns
+$dropdown-border:           #dfe6ef !default;
+$dropdown-fallback-border:  #dfe6ef !default;
+$dropdown-divider-bg:       #e9eef5 !default;
+$dropdown-link-color:       #3d4f73 !default;
+$dropdown-link-hover-color: #12233f !default;
+$dropdown-icon-color:       #97a5bc !default;
+$dropdown-padding-vertical: 7px !default;
+
+// -------------------------------------------------- paginación
+$pagination-active-color: #ffffff !default;
+$pagination-active-bg:    $brand-primary !default;
+
+// -------------------------------------------------- widgets / panels
+$widget-content-color:        #47597a !default;
+$widget-content-icon-color:   #b6c1d4 !default;
+$widget-col-background-color: #f7f9fc !default;
+$panel-default-text:          #47597a !default;

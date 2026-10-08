@@ -1,0 +1,28 @@
+// ===================================================================
+// GPSUbicar — marca y semántica de estados
+// Colores del logo: azul "GPS", verde "UBICAR", dorado del escudo,
+// navy del texto. El primario cumple contraste AA sobre blanco.
+// ===================================================================
+
+$brand-primary:          #1565ad;
+$brand-success:          #16a34a;
+$brand-info:             #2563eb;
+$brand-warning:          #f59e0b;
+$brand-danger:           #dc2626;
+
+// Marca
+$ap-navy:                #0f3d66;   // navy del logo (ancla, login, clusters)
+$ap-accent:              #f2b72f;   // dorado del escudo (acentos sobre navy)
+$ap-primary-hover:       #115693;
+$ap-primary-active:      #0e4779;
+
+// Estados de flota — idénticos en todos los clientes (semántica, no marca)
+$ap-status-moving:       #16a34a;   // en movimiento
+$ap-status-engine:       #2563eb;   // motor encendido
+$ap-status-stopped:      #f59e0b;   // detenido / ralentí
+$ap-status-offline:      #94a3b8;   // sin conexión (gris, no rojo)
+$ap-status-alert:        #dc2626;   // solo eventos que exigen acción
+
+// Historial: tramos de recorrido
+$ap-track-day:           #2563eb;
+$ap-track-night:         #7c5cfc;
