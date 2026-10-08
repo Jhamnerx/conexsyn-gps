@@ -8,6 +8,7 @@ use ModalHelpers\SensorModalHelper;
 use Tobuli\Entities\SensorGroupSensor;
 use Tobuli\Exceptions\ValidationException;
 use Tobuli\Repositories\SensorGroup\SensorGroupRepositoryInterface as SensorGroup;
+use Tobuli\Services\DeviceSensorsService;
 use Tobuli\Validation\AdminSensorGroupFormValidator;
 
 class SensorGroupSensorsController extends BaseController {
@@ -42,13 +43,16 @@ class SensorGroupSensorsController extends BaseController {
         $arr = $sensorModalHelper->formatInput($this->data);
         $arr['group_id'] = $input['id'];
 
-        SensorGroupSensor::create($arr);
+        $sensor = SensorGroupSensor::create($arr);
 
         $count = SensorGroupSensor::where(['group_id' => $arr['group_id']])->count();
 
         $sensorGroupRepo->update($arr['group_id'], [
             'count' => $count
         ]);
+
+        // Propaga el sensor a los vehículos cuyo tipo de dispositivo usa este grupo.
+        (new DeviceSensorsService())->syncSensorAddedToDevices($sensor, getActingUser());
 
         return ['status' => 1];
     }
@@ -70,9 +74,15 @@ class SensorGroupSensorsController extends BaseController {
 
         $sensorModalHelper->validate($this->data, $sensor);
 
+        // Identidad anterior (puede cambiar el nombre/tipo al editar).
+        $previous = ['type' => $sensor->type, 'name' => $sensor->name];
+
         $arr = $sensorModalHelper->formatInput($this->data);
 
         $sensor->update($arr);
+
+        // Propaga la edición a los vehículos del grupo (vía tipo de dispositivo).
+        (new DeviceSensorsService())->syncSensorUpdatedOnDevices($sensor->fresh(), $previous, getActingUser());
 
         return ['status' => 1];
     }
@@ -88,7 +98,8 @@ class SensorGroupSensorsController extends BaseController {
             $ids = [$ids];
         }
 
-        $item = SensorGroupSensor::whereIn('id', $ids)->first();
+        $items = SensorGroupSensor::whereIn('id', $ids)->get();
+        $item  = $items->first();
 
         SensorGroupSensor::whereIn('id', $ids)->delete();
 
@@ -96,6 +107,12 @@ class SensorGroupSensorsController extends BaseController {
         $sensorGroupRepo->update($item->group_id, [
             'count' => $count
         ]);
+
+        // Quita los sensores de los vehículos del grupo (vía tipo de dispositivo).
+        $sensorsService = new DeviceSensorsService();
+        foreach ($items as $removed) {
+            $sensorsService->syncSensorRemovedFromDevices($removed->group_id, $removed->type, $removed->name);
+        }
 
         return response()->json(['status' => 1, 'trigger' => 'updateSensorGroupsTable']);
     }

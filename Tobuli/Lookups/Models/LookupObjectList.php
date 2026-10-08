@@ -114,6 +114,28 @@ class LookupObjectList extends LookupDevice
                     break;
             }
         }
+
+        // Columna ICCID por defecto: valor leído del parámetro del dispositivo
+        // (igual que un sensor lo lee del "other" de la última posición).
+        $this->addColumn([
+            'data'       => 'iccid',
+            'name'       => 'iccid',
+            'title'      => 'ICCID',
+            'orderable'  => false,
+            'searchable' => false,
+            'datatype'   => 'device',
+        ]);
+    }
+
+    /**
+     * Renderiza el ICCID tomándolo del parámetro del vehículo.
+     * Muestra "-" si el dispositivo no lo reporta.
+     */
+    public function renderIccid($device)
+    {
+        $iccid = $device->getParameter('iccid');
+
+        return empty($iccid) ? '-' : $iccid;
     }
 
     public function getSettings()

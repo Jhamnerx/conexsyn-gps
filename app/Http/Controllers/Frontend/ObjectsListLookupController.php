@@ -57,6 +57,14 @@ class ObjectsListLookupController extends Controller {
 
     public function data()
     {
+        // Las exportaciones (sobre todo Excel/PDF) cargan toda la flota en
+        // memoria. Con miles de dispositivos el límite por defecto se agota,
+        // así que ampliamos memoria y tiempo solo para la petición de export.
+        if ($this->lookup->isExport()) {
+            @ini_set('memory_limit', '1536M');
+            @set_time_limit(0);
+        }
+
         return $this->lookup->render($this->lookup->getPrintView());
     }
 
