@@ -43,7 +43,9 @@ $zindex-modal:             1050 !default;
 
 
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&subset=cyrillic,cyrillic-ext,latin-ext');
+// La webfont Open Sans se importa en _index.scss (no aquí) para que las
+// hojas que solo necesitan variables, como report.scss, no arrastren
+// peticiones externas.
 $font-family-sans-serif: "Open Sans", sans-serif !default;
 
 $font-size-base:                              12px !default;
