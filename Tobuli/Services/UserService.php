@@ -124,6 +124,8 @@ class UserService
 
         $user->setSettings('widgets', $data['widgets'] ?? settings('widgets'), false);
 
+        (new DefaultAlertsService())->applyTo($user, getActingUser());
+
         return $user;
     }
 
