@@ -20,6 +20,8 @@ class PositionsStats
 
     const COUNTERS = [
         'processed',              // paso la validacion y actualizo (o intento) el dispositivo
+        'failed',                 // excepcion al procesarla: se registra en laravel.log y se pierde
+        'skipped_no_traccar',     // el dispositivo no tiene fila traccar_devices: no se puede escribir
         'stored',                 // se inserto en la tabla de posiciones (solo si cambio algo)
         'history',                // mas antigua que la ultima del dispositivo: no actualiza su estado
         'ack_history',            // ack (sin tiempo nuevo) y antigua: se ignora

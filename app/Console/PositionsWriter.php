@@ -10,6 +10,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag as Bugsnag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Tobuli\Entities\Device;
 use Tobuli\Entities\DeviceSensor;
 use Tobuli\Entities\TraccarPosition as Position;
@@ -117,20 +118,43 @@ class PositionsWriter
         $n = 0;
         $start = microtime(true);
 
-        foreach ($this->stack->getKeyDataList($key) as $data) {
-            $s = microtime(true);
+        $failures = 0;
 
-            $data = $this->normalizeData($data);
+        try {
+            foreach ($this->stack->getKeyDataList($key) as $data) {
+                $s = microtime(true);
 
-            $n += microtime(true) - $s;
+                $data = $this->normalizeData($data);
 
-            if (! $data)
-                continue;
+                $n += microtime(true) - $s;
 
-            $this->proccess($data);
-            $this->resetPrevPosition();
+                if (! $data)
+                    continue;
 
-            $p += microtime(true) - $s;
+                // una posicion con error no debe perder el resto del lote: la lista
+                // ya se borro de Redis al leerla. Se cuenta, se registra y se sigue.
+                try {
+                    $this->proccess($data);
+                } catch (\Throwable $e) {
+                    $this->stats->add('failed');
+
+                    if (++$failures <= 3) {
+                        Log::error('[insert:run] posicion descartada por error', [
+                            'imei'  => $imei,
+                            'error' => get_class($e) . ': ' . $e->getMessage(),
+                            'en'    => $e->getFile() . ':' . $e->getLine(),
+                            'time'  => $data['time'] ?? null,
+                        ]);
+                    }
+                }
+
+                $this->resetPrevPosition();
+
+                $p += microtime(true) - $s;
+            }
+        } finally {
+            // los contadores sobreviven aunque write() falle y el proceso muera
+            $this->stats->flush();
         }
 
         if ($this->debug) {
@@ -490,8 +514,10 @@ class PositionsWriter
             event(new PositionResultRetrieved($this->device, is_scalar($result) ? $result : json_encode($result)));
         }
 
-        if (! $this->device->traccar)
+        if (! $this->device->traccar) {
+            $this->stats->add('skipped_no_traccar');
             return;
+        }
 
         $this->position = new Position($data);
         $this->position->ack = $data['ack'];

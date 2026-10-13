@@ -52,6 +52,7 @@ class InsertStatsCommand extends Command
         }
 
         $this->queueReport();
+        $this->keyspaceReport();
         $this->memoryReport();
         $this->unregisteredReport();
 
@@ -122,6 +123,61 @@ class InsertStatsCommand extends Command
         });
 
         return array_map('intval', (array) $lengths);
+    }
+
+    // ------------------------------------------------------------ keyspace
+
+    /**
+     * Claves por prefijo (texto antes del primer "." o ":") con su tipo y, para
+     * las listas, el total de elementos. Sirve para ver si alguien empuja a
+     * listas distintas de positions.* (cmdstat_lpush cuenta todo el servidor).
+     */
+    private function keyspaceReport(): void
+    {
+        $keys = $this->stack->scanKeys('*');
+
+        if (! $keys) {
+            return;
+        }
+
+        $groups = [];
+
+        foreach ($keys as $key) {
+            $prefix = preg_split('/[.:]/', $key, 2)[0];
+            $groups[$prefix][] = $key;
+        }
+
+        $rows = [];
+
+        foreach ($groups as $prefix => $members) {
+            $sample = array_slice($members, 0, 200);
+
+            $types = $this->redis->pipeline(function ($pipe) use ($sample) {
+                foreach ($sample as $key) {
+                    $pipe->type($key);
+                }
+            });
+
+            $types = array_map(function ($t) {
+                return is_object($t) ? (string) $t : (string) $t;
+            }, (array) $types);
+
+            $type = implode(',', array_unique($types));
+            $elements = '-';
+
+            if (in_array('list', $types, true)) {
+                $elements = number_format(array_sum($this->lengths($members)));
+            }
+
+            $rows[] = [$prefix, number_format(count($members)), $type, $elements];
+        }
+
+        usort($rows, function ($a, $b) {
+            return (int) str_replace(',', '', $b[1]) <=> (int) str_replace(',', '', $a[1]);
+        });
+
+        $this->info('Claves por prefijo (base "process")');
+        $this->table(['Prefijo', 'Claves', 'Tipo', 'Elementos en listas'], array_slice($rows, 0, 12));
     }
 
     // ------------------------------------------------------------ memoria
@@ -288,7 +344,7 @@ class InsertStatsCommand extends Command
 
         $skipped = $d['skipped_no_imei'] + $d['skipped_osmand'] + $d['skipped_outdated'] + $d['skipped_future'];
         $discarded = $d['discarded_unregistered'] + $d['discarded_inactive'] + $d['discarded_invalid_imei'];
-        $accounted = $d['processed'] + $d['ack_history'] + $skipped + $discarded;
+        $accounted = $d['processed'] + $d['failed'] + $d['skipped_no_traccar'] + $d['ack_history'] + $skipped + $discarded;
         $queueDelta = $pending1 - $pending0;
 
         $rows = [
@@ -296,6 +352,8 @@ class InsertStatsCommand extends Command
             ['Procesadas (validas, actualizan el dispositivo)', $perMinute($d['processed'])],
             ['  de ellas, guardadas en la tabla de posiciones', $perMinute($d['stored'])],
             ['  de ellas, "historia" (mas antiguas que la ultima del equipo: no cuentan como conectado)', $perMinute($d['history'])],
+            ['Con error al procesar (se pierden; detalle en storage/logs/laravel.log)', $perMinute($d['failed'])],
+            ['Sin fila traccar_devices (no se pueden escribir)', $perMinute($d['skipped_no_traccar'])],
             ['Ignoradas: ack con tiempo antiguo', $perMinute($d['ack_history'])],
             ['Ignoradas por validacion (sin imei / osmand / >90 dias / futuro)', $perMinute($skipped) . sprintf('  (%d / %d / %d / %d)', $d['skipped_no_imei'], $d['skipped_osmand'], $d['skipped_outdated'], $d['skipped_future'])],
             ['Desechadas (no registrado / inactivo / imei invalido)', $perMinute($discarded) . sprintf('  (%d / %d / %d)', $d['discarded_unregistered'], $d['discarded_inactive'], $d['discarded_invalid_imei'])],
@@ -311,6 +369,10 @@ class InsertStatsCommand extends Command
 
         if ($in && $accounted === 0 && $queueDelta <= 0) {
             $this->line('Los contadores del writer estan a cero: los workers aun ejecutan la version sin instrumentar (se renuevan solos en un minuto).');
+        }
+
+        if ($d['failed'] > 0) {
+            $this->warn('Hay posiciones que fallan al procesarse: mira storage/logs/laravel.log (entradas "[insert:run] posicion descartada por error").');
         }
 
         if ($queueDelta > 0 && $in) {

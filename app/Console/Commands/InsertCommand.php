@@ -72,6 +72,7 @@ class InsertCommand extends Command
         $timeout = config('tobuli.process.insert_timeout');
         $limit = config('tobuli.process.insert_limit');
         $batchSize = (int) config('tobuli.process.insert_batch', 200);
+        $legacy = (bool) config('tobuli.process.insert_legacy', false);
 
         $this->positionsStack = new PositionsStack();
         $this->processManager = new ProcessManager($this->name, $timeout, $limit);
@@ -87,7 +88,7 @@ class InsertCommand extends Command
         {
             $start = microtime(true);
 
-            $taken = $this->processBatch($batchSize);
+            $taken = $legacy ? $this->processOne() : $this->processBatch($batchSize);
 
             if ($this->debug)
                 $this->line(sprintf('Batch: %d imeis in %.3fs', $taken, microtime(true) - $start));
@@ -133,6 +134,43 @@ class InsertCommand extends Command
         }
 
         return count($imeis);
+    }
+
+    /**
+     * Modo anterior: un IMEI por viaje a Redis, tomado de la lista clasica.
+     * Se activa con PROC_INSERT_LEGACY=1 para comparar con el modo por lotes
+     * en produccion sin cambiar el codigo. Devuelve 1 si proceso un IMEI.
+     */
+    private function processOne(): int
+    {
+        $imei = null;
+
+        do {
+            $candidate = $this->positionsStack->next();
+
+            if ( ! $this->isValidImei($candidate)) {
+                if ($candidate)
+                    $this->discard($candidate, 'discarded_invalid_imei');
+
+                continue;
+            }
+
+            if ( ! $this->processManager->lock($candidate))
+                continue;
+
+            $imei = $candidate;
+        } while ($candidate && is_null($imei));
+
+        if ( ! $imei)
+            return 0;
+
+        try {
+            $this->processImei($imei);
+        } finally {
+            $this->processManager->unlock($imei);
+        }
+
+        return 1;
     }
 
     private function processImei($imei)
