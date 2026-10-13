@@ -23,7 +23,7 @@ class TrackerConfig
     {
         $this->load();
 
-        $this->save( $this->build() );
+        $this->save($this->build());
     }
 
     public function update()
@@ -32,7 +32,7 @@ class TrackerConfig
             ->loadDefaults()
             ->load();
 
-        $this->save( $this->build() );
+        $this->save($this->build());
     }
 
     public function reset()
@@ -45,7 +45,7 @@ class TrackerConfig
             ->loadDefaults()
             ->load();
 
-        $this->save( $this->build() );
+        $this->save($this->build());
     }
 
     public function set($key, $value)
@@ -67,7 +67,7 @@ class TrackerConfig
 
     protected function merge($data, $value = null)
     {
-        if ( ! $data)
+        if (! $data)
             return $this;
 
         if (is_string($data))
@@ -94,7 +94,7 @@ class TrackerConfig
     {
         $path = storage_path('tracker.json');
 
-        if ( ! File::exists($path))
+        if (! File::exists($path))
             return $this;
 
         return $this->merge(json_decode(File::get($path), true));
@@ -118,7 +118,7 @@ class TrackerConfig
     protected function loadPorts()
     {
         $ports = TrackerPort::active()
-            ->with(['childPorts' => fn ($query) => $query->active()])
+            ->with(['childPorts' => fn($query) => $query->active()])
             ->whereNull('parent')
             ->get();
 
@@ -133,7 +133,7 @@ class TrackerConfig
 
             $this->merge("$port->name.aliases", $childAliases);
 
-            $port->childPorts->each(fn ($port) => $this->loadPort($port));
+            $port->childPorts->each(fn($port) => $this->loadPort($port));
         }
 
         return $this;
@@ -158,11 +158,11 @@ class TrackerConfig
     {
         $forward = Device::whereNotNull('forward')
             ->get()
-            ->filter(function($device) {
+            ->filter(function ($device) {
                 if (empty($device->forward))
                     return false;
 
-                if ( ! Arr::get($device->forward, 'active'))
+                if (! Arr::get($device->forward, 'active'))
                     return false;
 
                 if (empty($device->forward['ip']))
@@ -170,7 +170,7 @@ class TrackerConfig
 
                 return true;
             })
-            ->map(function($device) {
+            ->map(function ($device) {
                 $forwards = [];
                 $ips = semicol_explode($device->forward['ip']);
 
@@ -209,7 +209,7 @@ class TrackerConfig
 
     protected function loadXML()
     {
-        if ( ! File::exists(self::PATH_CONFIG))
+        if (! File::exists(self::PATH_CONFIG))
             return $this;
 
         try {
@@ -235,9 +235,10 @@ class TrackerConfig
      */
     protected function build()
     {
-        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?>'
-            . "<!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>"
-            . '<properties></properties>'
+        $xml = new \SimpleXMLElement(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+                . "<!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>"
+                . '<properties></properties>'
         );
 
         foreach ($this->attributes as $key => $value) {
@@ -249,7 +250,8 @@ class TrackerConfig
         return $xml;
     }
 
-    protected function normalize($value) {
+    protected function normalize($value)
+    {
         return str_replace(['&amp;', '&'], ['&', '&amp;'], $value);
     }
 
@@ -260,6 +262,6 @@ class TrackerConfig
         $dom->formatOutput = true;
         $dom->loadXML($xml->asXML());
 
-        File::put(self::PATH_CONFIG, $dom->saveXML());
+        // File::put(self::PATH_CONFIG, $dom->saveXML());
     }
 }
