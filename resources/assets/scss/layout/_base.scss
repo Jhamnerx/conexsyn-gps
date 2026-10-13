@@ -116,9 +116,9 @@ body{
     border-color: #848484;
   }
   .drive-action & {
-    background: #1b99bd;
+    background: $brand-primary;
     color: #fff;
-    border-color: #1b99bd;
+    border-color: $brand-primary;
   }
 }
 
