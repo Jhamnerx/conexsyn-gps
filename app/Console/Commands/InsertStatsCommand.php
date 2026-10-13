@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Console\PositionsStack;
+use App\Console\PositionsStats;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -13,17 +14,23 @@ use Tobuli\Entities\Device;
  * Radiografia de la cola de posiciones: cuanto hay pendiente en Redis, en que
  * dispositivos se concentra, cuantos workers insert:run estan registrados, si
  * Redis descarta claves por memoria y que IMEIs se estan desechando por no
- * estar registrados. Con --connected cruza las sesiones abiertas en el servidor
- * GPS (claves connected.*) con los dispositivos y su ultima posicion escrita;
- * con --watch=N mide durante N segundos el ritmo de entrada (LPUSH) frente al
- * avance de la cola. Solo lectura.
+ * estar registrados.
+ *
+ *  --connected    cruza las sesiones abiertas en el servidor GPS (connected.*)
+ *                 con los dispositivos y la edad de su ultima posicion escrita
+ *  --watch=N      mide durante N segundos las posiciones que entran (LPUSH) y
+ *                 en que termina cada una (contadores de PositionsStats)
+ *  --device=IMEI  todo lo que se sabe de un equipo: sesion, tiempos, cola
+ *
+ * Solo lectura.
  */
 class InsertStatsCommand extends Command
 {
     protected $signature = 'insert:stats
         {--top=10 : Cuantos IMEIs con mayor cola mostrar}
         {--connected : Cruza las claves connected.* con los dispositivos y su ultima posicion}
-        {--watch=0 : Segundos de muestreo para medir posiciones entrantes por minuto}';
+        {--watch=0 : Segundos de muestreo para medir entradas y destino de las posiciones}
+        {--device= : IMEI a inspeccionar (sesion, tiempos del dispositivo y cola)}';
 
     protected $description = 'Estado de la cola de posiciones en Redis y de los procesos insert:run (solo lectura).';
 
@@ -37,6 +44,12 @@ class InsertStatsCommand extends Command
     {
         $this->redis = Redis::connection('process');
         $this->stack = new PositionsStack();
+
+        if ($imei = $this->option('device')) {
+            $this->deviceReport((string) $imei);
+
+            return 0;
+        }
 
         $this->queueReport();
         $this->memoryReport();
@@ -141,8 +154,8 @@ class InsertStatsCommand extends Command
 
     /**
      * IMEIs cuyas posiciones se desechan porque no existe un dispositivo con
-     * ese IMEI (o protocolo). Si aqui hay actividad reciente, hay equipos
-     * enviando datos que nunca llegaran a la base.
+     * ese IMEI. Si aqui hay actividad reciente, hay equipos enviando datos que
+     * nunca llegaran a la base.
      */
     private function unregisteredReport(): void
     {
@@ -187,9 +200,11 @@ class InsertStatsCommand extends Command
      */
     private function connectedReport(): void
     {
+        $keys = $this->stack->scanKeys('connected.*');
+
         $imeis = array_map(function ($key) {
             return substr($key, strlen('connected.'));
-        }, $this->stack->scanKeys('connected.*'));
+        }, $keys);
 
         $onlineMinutes = (int) settings('main_settings.default_object_online_timeout');
         $now = Carbon::now();
@@ -198,7 +213,6 @@ class InsertStatsCommand extends Command
         $online = 0;
         $silentHour = 0;
         $silentDay = 0;
-        $never = 0;
         $missing = [];
 
         foreach (array_chunk($imeis, 1000) as $chunk) {
@@ -232,44 +246,151 @@ class InsertStatsCommand extends Command
             $this->line('  Ejemplos sin registrar: ' . implode(', ', array_slice($missing, 0, 8)));
         }
 
+        foreach (array_slice($keys, 0, 2) as $key) {
+            $this->line('  Valor de ' . $key . ': ' . $this->short((string) $this->redis->get($key)));
+        }
+
         $this->line('Nota: connected.* la escribe el servidor GPS al abrir la sesion TCP y no caduca; un equipo puede mantener la sesion abierta sin enviar posiciones.');
     }
 
     // ------------------------------------------------------------ muestreo
 
     /**
-     * Mide durante $seconds: LPUSH recibidos (posiciones que entran a Redis),
-     * variacion de la cola y dispositivos escritos en ese intervalo.
+     * Mide durante $seconds: posiciones que entran a Redis (LPUSH), destino de
+     * cada una segun los contadores del writer, variacion de la cola y
+     * dispositivos escritos en ese intervalo.
      */
     private function watchReport(int $seconds): void
     {
         $this->info("Muestreo de {$seconds} s...");
 
+        $stats = new PositionsStats();
+
         $pushes0 = $this->lpushCalls();
         $pending0 = array_sum($this->lengths($this->stack->getKeys()));
+        $counters0 = $stats->snapshot();
         $from = Carbon::now();
 
         sleep($seconds);
 
         $pushes1 = $this->lpushCalls();
         $pending1 = array_sum($this->lengths($this->stack->getKeys()));
+        $counters1 = $stats->snapshot();
         $written = Device::connectedAfter($from)->count();
 
         $factor = 60 / max($seconds, 1);
-        $in = $pushes1 !== null && $pushes0 !== null ? ($pushes1 - $pushes0) : null;
+        $perMinute = function ($n) use ($factor) {
+            return number_format($n * $factor);
+        };
 
-        $this->table(['Dato', 'Valor'], [
-            ['Posiciones que entran (LPUSH/min)', $in === null ? 'INFO commandstats no disponible' : number_format($in * $factor)],
+        $in = ($pushes1 !== null && $pushes0 !== null) ? ($pushes1 - $pushes0) : null;
+        $d = PositionsStats::diff($counters0, $counters1);
+
+        $skipped = $d['skipped_no_imei'] + $d['skipped_osmand'] + $d['skipped_outdated'] + $d['skipped_future'];
+        $discarded = $d['discarded_unregistered'] + $d['discarded_inactive'] + $d['discarded_invalid_imei'];
+        $accounted = $d['processed'] + $d['ack_history'] + $skipped + $discarded;
+        $queueDelta = $pending1 - $pending0;
+
+        $rows = [
+            ['Entran a Redis (LPUSH)', $in === null ? 'INFO commandstats no disponible' : $perMinute($in)],
+            ['Procesadas (validas, actualizan el dispositivo)', $perMinute($d['processed'])],
+            ['  de ellas, guardadas en la tabla de posiciones', $perMinute($d['stored'])],
+            ['  de ellas, "historia" (mas antiguas que la ultima del equipo: no cuentan como conectado)', $perMinute($d['history'])],
+            ['Ignoradas: ack con tiempo antiguo', $perMinute($d['ack_history'])],
+            ['Ignoradas por validacion (sin imei / osmand / >90 dias / futuro)', $perMinute($skipped) . sprintf('  (%d / %d / %d / %d)', $d['skipped_no_imei'], $d['skipped_osmand'], $d['skipped_outdated'], $d['skipped_future'])],
+            ['Desechadas (no registrado / inactivo / imei invalido)', $perMinute($discarded) . sprintf('  (%d / %d / %d)', $d['discarded_unregistered'], $d['discarded_inactive'], $d['discarded_invalid_imei'])],
             ['Cola al inicio / al final', number_format($pending0) . ' / ' . number_format($pending1)],
-            ['Variacion de la cola', ($pending1 - $pending0 >= 0 ? '+' : '') . number_format($pending1 - $pending0)],
             ['Dispositivos con posicion escrita en el intervalo', number_format($written)],
-        ]);
+        ];
 
-        if ($pending1 > $pending0 && $in) {
-            $this->warn('La cola crece: entran mas posiciones de las que los workers escriben. Mas workers en paralelo o revisar el tiempo por dispositivo (insert:run debug).');
+        if ($in !== null) {
+            $rows[] = ['Sin explicar (entradas - destino conocido - variacion de cola)', $perMinute($in - $accounted - $queueDelta)];
+        }
+
+        $this->table(['Dato', 'Por minuto'], $rows);
+
+        if ($in && $accounted === 0 && $queueDelta <= 0) {
+            $this->line('Los contadores del writer estan a cero: los workers aun ejecutan la version sin instrumentar (se renuevan solos en un minuto).');
+        }
+
+        if ($queueDelta > 0 && $in) {
+            $this->warn('La cola crece en el intervalo: entran mas posiciones de las que los workers escriben. Mas workers en paralelo (y vida mayor para que se solapen) o revisar el tiempo por dispositivo con insert:run debug.');
         } elseif ($in === 0 || $in === null) {
             $this->line('No entran posiciones a Redis en el intervalo: el problema esta antes (servidor GPS / endpoint de posiciones), no en insert:run.');
         }
+    }
+
+    // ------------------------------------------------------------ un dispositivo
+
+    /**
+     * Todo lo visible de un equipo: sesion en el servidor GPS, tiempos del
+     * dispositivo, cola pendiente y registro de no registrado si lo hay.
+     */
+    private function deviceReport(string $imei): void
+    {
+        $device = Device::where('imei', $imei)->first();
+        $connected = $this->redis->get('connected.' . $imei);
+        $key = PositionsStack::PREFIX . '.' . $imei;
+        $pending = (int) $this->redis->llen($key);
+
+        $rows = [
+            ['IMEI', $imei],
+            ['Sesion en el servidor GPS (connected.*)', $connected === null || $connected === false ? 'no' : 'si: ' . $this->short((string) $connected)],
+            ['Posiciones en cola', number_format($pending)],
+        ];
+
+        if ($pending) {
+            $rows[] = ['  mas antigua en cola', $this->positionSummary($this->redis->lindex($key, -1))];
+            $rows[] = ['  mas reciente en cola', $this->positionSummary($this->redis->lindex($key, 0))];
+        }
+
+        if ($device) {
+            $traccar = $device->traccar;
+            $rows[] = ['Dispositivo', "#{$device->id} {$device->name}" . ($device->active ? '' : ' (INACTIVO: sus posiciones se desechan)')];
+            $rows[] = ['Protocolo', $traccar->protocol ?? '?'];
+            $rows[] = ['Ultima posicion del equipo (time)', $traccar->time ?? '-'];
+            $rows[] = ['Ultima escritura (server_time, lo que cuenta como conectado)', $traccar->server_time ?? '-'];
+            $rows[] = ['Ultimo ack (ack_time)', $traccar->ack_time ?? '-'];
+            $rows[] = ['Ventana "conectado"', settings('main_settings.default_object_online_timeout') . ' min'];
+        } else {
+            $rows[] = ['Dispositivo', 'NO REGISTRADO: sus posiciones se desechan'];
+        }
+
+        try {
+            $log = DB::table('unregistered_devices_log')->where('imei', $imei)->first();
+
+            if ($log) {
+                $rows[] = ['Registro de no registrado', "{$log->times} veces, ultimo {$log->date}, ip {$log->ip}, puerto {$log->port}"];
+            }
+        } catch (\Throwable $e) {
+            // tabla no disponible
+        }
+
+        $this->table(['Dato', 'Valor'], $rows);
+    }
+
+    private function positionSummary($raw): string
+    {
+        $data = json_decode((string) $raw, true);
+
+        if (! is_array($data)) {
+            return $this->short((string) $raw);
+        }
+
+        $parts = [];
+
+        foreach (['deviceTime', 'fixTime', 'time', 'serverTime', 'protocol', 'valid', 'latitude', 'longitude', 'speed'] as $field) {
+            if (array_key_exists($field, $data) && ! is_array($data[$field])) {
+                $parts[] = $field . '=' . var_export($data[$field], true);
+            }
+        }
+
+        return $parts ? implode(' ', $parts) : $this->short((string) $raw);
+    }
+
+    private function short(string $value, int $max = 140): string
+    {
+        return strlen($value) > $max ? substr($value, 0, $max) . '...' : $value;
     }
 
     /**
@@ -316,7 +437,7 @@ class InsertStatsCommand extends Command
         $flat = [];
 
         foreach ($info as $key => $value) {
-            // valores "calls=1,usec=2" de commandstats se conservan tal cual;
+            // los valores "calls=1,usec=2" de commandstats se conservan tal cual;
             // las secciones (arrays sin claves cmdstat_/db) se aplanan
             if (is_array($value) && ! preg_match('/^(cmdstat_|db\d+)/', (string) $key)) {
                 $flat = array_merge($flat, $this->flatten($value));

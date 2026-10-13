@@ -56,6 +56,7 @@ class PositionsWriter
     protected $resetDriverOnUnknownRfid = null;
 
     protected $eventWriteService = null;
+    protected PositionsStats $stats;
     protected TaskStatusChanger $taskStatusChanger;
     protected ?LbsInterface $lbsService = null;
     protected ?IntegrationPositionRecorder $integrationRecorder = null;
@@ -72,6 +73,7 @@ class PositionsWriter
 
         $this->beaconsPositionWriter = new PositionsBeaconsWriter($device, $debug);
         $this->stack = new PositionsStack();
+        $this->stats = new PositionsStats();
 
         $this->device->load(['timezone']);
 
@@ -149,8 +151,10 @@ class PositionsWriter
         if (! empty($data['uniqueId']))
             $data['imei'] = $data['uniqueId'];
 
-        if (empty($data['imei']))
+        if (empty($data['imei'])) {
+            $this->stats->add('skipped_no_imei');
             return false;
+        }
 
         $data = array_merge([
             'altitude'  => 0,
@@ -203,18 +207,21 @@ class PositionsWriter
 
         if ($this->isSkipableOsmand($data)) {
             $this->line('Osmand skipable');
+            $this->stats->add('skipped_osmand');
             return false;
         }
 
         //Outdated check for 90 days
         if (time() - strtotime($data['time']) > 7776000) {
             $this->line('Bad date - outdated: ' . $data['time']);
+            $this->stats->add('skipped_outdated');
             return false;
         }
 
         //Future check for 1 day
         if (strtotime($data['time']) - time() > 86400) {
             $this->line('Bad date - future: ' . $data['time']);
+            $this->stats->add('skipped_future');
             return false;
         }
 
@@ -494,8 +501,10 @@ class PositionsWriter
         $this->position->setParameter('valid', $this->position->isValid() ? 'true' : 'false');
         $this->position->setParameter(Position::VIRTUAL_ENGINE_HOURS_KEY, $this->getVirtualEngineHours());
 
-        if ($this->position->ack && $this->isHistory($this->position->time))
+        if ($this->position->ack && $this->isHistory($this->position->time)) {
+            $this->stats->add('ack_history');
             return;
+        }
 
         $lastValidPosition = $this->getPrevValidPosition();
 
@@ -611,6 +620,12 @@ class PositionsWriter
         }
 
         $this->setCurrentDriver($this->position);
+
+        $this->stats->add('processed');
+
+        if ($this->isHistory()) {
+            $this->stats->add('history');
+        }
 
         $this->forwards->process($this->position);
 
@@ -1144,6 +1159,7 @@ class PositionsWriter
     protected function addPosition($position)
     {
         $this->positions[] = $position;
+        $this->stats->add('stored');
 
         $this->positions = Arr::sort($this->positions, function ($value) {
             return $value->time;
@@ -1214,6 +1230,8 @@ class PositionsWriter
         $this->line('Write time ' . ($end - $start));
 
         $this->forwards->send();
+
+        $this->stats->flush();
     }
 
     protected function writePositions()

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Input\InputArgument;
 use CustomFacades\Repositories\DeviceRepo;
 use App\Console\PositionsStack;
+use App\Console\PositionsStats;
 use App\Console\ProcessManager;
 use App\Console\PositionsWriter;
 use Tobuli\Entities\UnregisteredDevice;
@@ -37,6 +38,11 @@ class InsertCommand extends Command
      * @var PositionsIpLogger
      */
     protected $positionsIpLog;
+
+    /**
+     * @var PositionsStats
+     */
+    protected $stats;
 
     /**
      * The console command name.
@@ -70,6 +76,7 @@ class InsertCommand extends Command
         $this->positionsStack = new PositionsStack();
         $this->processManager = new ProcessManager($this->name, $timeout, $limit);
         $this->positionsIpLog = new PositionsIpLogger(config('tobuli.positions_ip_log'));
+        $this->stats = new PositionsStats();
 
         if ( ! $this->processManager->canProcess()) {
             echo "Cant process.";
@@ -110,7 +117,7 @@ class InsertCommand extends Command
             }
 
             if ( ! $this->isValidImei($imei)) {
-                $this->positionsStack->deleteImei($imei);
+                $this->discard($imei, 'discarded_invalid_imei');
                 continue;
             }
 
@@ -141,7 +148,7 @@ class InsertCommand extends Command
             $data = $this->positionsStack->getData($imei, false);
 
             if ( ! $data) {
-                $this->positionsStack->deleteImei($imei);
+                $this->discard($imei, 'discarded_invalid_imei');
                 return;
             }
 
@@ -164,7 +171,7 @@ class InsertCommand extends Command
                 Arr::get($data, 'attributes.ip')
             );
 
-            $this->positionsStack->deleteImei($imei);
+            $this->discard($imei, 'discarded_unregistered');
 
         } elseif ($device->active) {
             $start = microtime(true);
@@ -174,8 +181,17 @@ class InsertCommand extends Command
                 $this->line('All writer: '.(microtime(true) - $start));
 
         } else {
-            $this->positionsStack->deleteImei($imei);
+            $this->discard($imei, 'discarded_inactive');
         }
+    }
+
+    /**
+     * Borra la cola de un IMEI contando cuantas posiciones se pierden y por que.
+     */
+    private function discard($imei, string $counter): void
+    {
+        $this->stats->incr($counter, max(1, (int) $this->positionsStack->count($imei)));
+        $this->positionsStack->deleteImei($imei);
     }
 
     private function isValidImei($imei)
