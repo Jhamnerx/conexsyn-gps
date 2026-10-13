@@ -1,0 +1,26 @@
+// ===================================================================
+// Conexsyn / Self Security — marca
+// Rojo carmesí del logo (escudo y laureles) como único acento, grafito
+// para cabecera y rail. Los colores semánticos (éxito, info, aviso,
+// peligro) no son de marca: el rojo de alerta se mantiene distinto del
+// carmesí para que "alerta" y "marca" no se confundan en el mapa.
+// ===================================================================
+
+// -------------------------------------------------- acento
+$brand-primary:     #bc0000 !default;   // muestreado del logo, 6,6:1 sobre blanco
+$ap-primary-hover:  #a30000 !default;
+$ap-primary-active: #8a0000 !default;
+
+// -------------------------------------------------- grafito (cabecera, rail, tooltips)
+$ap-graphite:          #17191e !default;
+$ap-graphite-2:        #22252c !default;   // hover / relieve
+$ap-graphite-border:   #2d313a !default;
+$ap-on-graphite:       #f1f2f4 !default;   // texto principal sobre grafito
+$ap-on-graphite-muted: #b4b9c3 !default;   // texto secundario (9:1)
+$ap-on-graphite-icon:  #8e95a2 !default;   // iconos en reposo (5,6:1)
+
+// -------------------------------------------------- semánticos
+$brand-success: #1f9d55 !default;
+$brand-info:    #2563eb !default;
+$brand-warning: #d97706 !default;
+$brand-danger:  #dc2626 !default;

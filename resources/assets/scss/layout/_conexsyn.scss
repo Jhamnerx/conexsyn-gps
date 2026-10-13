@@ -1,16 +1,16 @@
 // ===================================================================
-// Conexsyn — capa de estilos personalizados
-// Se importa al final del template (como hace facelift): pule forma,
-// espaciado, tipografía y movimiento por encima de Bootstrap 3 y de
-// los partials de layout, y aporta los componentes propios (rail de
-// navegación, KPI del dashboard).
+// Conexsyn / Self Security — capa de componentes
+// Se importa al final del template (como hace facelift): pule los
+// componentes por encima de Bootstrap 3 y de los partials de layout y
+// aporta los propios (rail de navegación, KPI del dashboard).
 //
-// Regla de la capa: NO redefine colores de texto, botones, fondos ni
-// bordes que el template original ya asigna. Los colores que usan los
-// componentes propios salen siempre de las variables del template
-// (light-blue / dark-blue), nunca de valores fijos. Tampoco cambia
-// dimensiones estructurales (alturas, anchos de sidebar) de las que
-// depende el JavaScript existente.
+// Lenguaje visual: un solo acento (carmesí del logo) sobre grafito y
+// neutros fríos; la franja carmesí de 3 px es la marca recurrente
+// (cabecera, modales, login, ítem activo). Los colores salen siempre
+// de las variables del tema, nunca de valores fijos, para que la misma
+// capa sirva en claro y en nocturno. No cambia dimensiones
+// estructurales (alturas, anchos de sidebar) de las que depende el
+// JavaScript existente.
 // ===================================================================
 
 // -------------------------------------------------- base
@@ -20,7 +20,7 @@ body {
 }
 
 ::selection {
-  background: rgba($brand-primary, 0.22);
+  background: rgba($brand-primary, 0.2);
 }
 
 a {
@@ -45,22 +45,76 @@ a:focus-visible {
   outline-offset: 1px;
 }
 
-// -------------------------------------------------- header / navbar
+// etiqueta "técnica": mayúsculas con tracking, eco del wordmark
+%ap-label {
+  font-size: $font-size-base - 2;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// -------------------------------------------------- header / navbar (grafito)
 #header {
   .navbar-main,
   .main-navbar {
     border-width: 0 0 1px;
     box-shadow: $ap-shadow-sm;
+
+    // franja de marca: pseudo-elemento para no alterar los 42px del navbar
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, $brand-primary 0%, $brand-primary 60%, $ap-primary-active 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+  }
+
+  // placa blanca redondeada tras el logo: el escudo está diseñado en
+  // rojo sobre blanco y así luce intencionado sobre el grafito
+  .navbar-brand {
+    padding: 4px 8px;
+    margin: 5px 0 5px 4px;
+    height: auto;
+    max-height: $navbar-height;
+    background: #ffffff;
+    border-radius: $border-radius-base;
+
+    img {
+      height: $navbar-height - 10px - 8px;   // 24px
+      max-height: none;
+    }
+
+    &:hover,
+    &:focus {
+      background: #ffffff;
+    }
   }
 
   .navbar-nav > li > a {
-    transition: color 0.12s ease, background-color 0.12s ease;
+    transition: color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .navbar-nav > .active > a,
+  .navbar-nav > .open > a {
+    box-shadow: inset 0 -3px 0 $brand-primary;
   }
 
   .navbar-nav > li > a > .badge {
     font-family: $ap-font-mono;
     font-weight: 600;
     border-radius: 999px;
+    background: $brand-primary;
+    color: $color-text-000;
+  }
+
+  .navbar-text {
+    @extend %ap-label;
+    letter-spacing: 0.12em;
   }
 }
 
@@ -96,7 +150,7 @@ a:focus-visible {
   }
 }
 
-// -------------------------------------------------- rail de navegación
+// -------------------------------------------------- rail de navegación (grafito)
 // La navegación vive en Blade (partials/sidenav): expandida muestra
 // icono + texto, colapsada solo icono. El ancho se propaga por
 // --ap-rail para desplazar sidebar, bottombar y controles.
@@ -117,8 +171,8 @@ body.ap-nav-collapsed {
   width: var(--ap-rail);
   display: flex;
   flex-direction: column;
-  background: $color-bg-000;
-  border-right: 1px solid $color-border-100;
+  background: $ap-graphite;
+  border-right: 1px solid $ap-graphite-border;
   transition: width 0.22s ease;
   overflow: hidden;
 
@@ -137,33 +191,41 @@ body.ap-nav-collapsed {
     > li.sn-sep {
       height: 1px;
       margin: 8px 4px;
-      background: $color-border-200;
+      background: $ap-graphite-border;
     }
 
     > li > a {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 9px 10px;
+      padding: 10px 10px;
       border-radius: $border-radius-base;
-      color: $color-text-400;
-      font-size: $font-size-base;
+      color: $ap-on-graphite-muted;
+      font-size: $font-size-base - 1;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       white-space: nowrap;
       text-decoration: none;
-      transition: color 0.12s ease, background-color 0.12s ease;
+      box-shadow: inset 0 0 0 transparent;
+      transition: color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
 
       &:hover,
       &:focus {
-        color: $color-text-100;
-        background: $nav-link-hover-bg;
+        color: $ap-on-graphite;
+        background: $ap-graphite-2;
         text-decoration: none;
       }
     }
 
     > li.active > a {
-      color: $color-text-000;
-      background: $brand-primary;
+      color: $ap-on-graphite;
+      background: rgba($brand-primary, 0.22);
+      box-shadow: inset 3px 0 0 $brand-primary;
+
+      .sn-ico {
+        color: lighten($brand-primary, 38%);
+      }
     }
   }
 
@@ -172,12 +234,19 @@ body.ap-nav-collapsed {
     width: 20px;
     height: 20px;
     display: block;
+    color: $ap-on-graphite-icon;
+    transition: color 0.12s ease;
 
     svg {
       display: block;
       width: 100%;
       height: 100%;
     }
+  }
+
+  .sidenav-menu > li > a:hover .sn-ico,
+  .sidenav-menu > li > a:focus .sn-ico {
+    color: $ap-on-graphite;
   }
 
   .sn-text {
@@ -192,18 +261,21 @@ body.ap-nav-collapsed {
     margin: 8px 8px 0;
     padding: 8px 10px;
     border: 0;
-    border-bottom: 1px solid $color-border-200;
+    border-bottom: 1px solid $ap-graphite-border;
     border-radius: $border-radius-base $border-radius-base 0 0;
     background: transparent;
-    color: $color-text-600;
-    font-size: $font-size-base - 1;
+    color: $ap-on-graphite-icon;
+    font-size: $font-size-base - 2;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
     white-space: nowrap;
     cursor: pointer;
+    transition: color 0.12s ease, background-color 0.12s ease;
 
     &:hover {
-      color: $brand-primary;
-      background: $nav-link-hover-bg;
+      color: $ap-on-graphite;
+      background: $ap-graphite-2;
     }
 
     .sn-chev-r {
@@ -276,6 +348,7 @@ body.ap-nav-collapsed .sidenav {
 
   .tab-pane-footer {
     border-top: 1px solid $color-border-200;
+    background: $color-bg-100;
   }
 }
 
@@ -291,9 +364,14 @@ body.ap-nav-collapsed .sidenav {
 }
 
 // tirador de colapso: sólido, sin esquinas en diagonal
-// (fondo y color de texto: los del template, en layout/buttons)
 .btn-collapse {
+  background: $color-bg-000;
+  color: $color-text-500;
   border: 1px solid $color-border-100;
+
+  &:hover {
+    color: $brand-primary;
+  }
 
   &.collapse-left {
     border-left: 0;
@@ -344,15 +422,26 @@ body.ap-nav-collapsed .sidenav {
   border-radius: $border-radius-base;
 
   > .group-title {
-    font-weight: 600;
+    @extend %ap-label;
+    font-size: $font-size-base - 1;
+    letter-spacing: 0.04em;
   }
 }
 
 .group-list > li {
-  transition: background-color 0.12s ease;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+
+  &.active {
+    background: rgba($brand-primary, 0.06);
+    box-shadow: inset 3px 0 0 $brand-primary;
+
+    > *:last-child {
+      border-right-color: transparent;
+    }
+  }
 
   > .name {
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 
@@ -371,6 +460,30 @@ body.ap-nav-collapsed .sidenav {
     color 0.12s ease, box-shadow 0.12s ease;
 }
 
+.btn-primary {
+  &:hover,
+  &:focus {
+    background: $ap-primary-hover;
+    border-color: $ap-primary-hover;
+  }
+
+  &:active,
+  &.active {
+    background: $ap-primary-active;
+    border-color: $ap-primary-active;
+    box-shadow: none;
+  }
+}
+
+.btn-default {
+  &:hover,
+  &:focus {
+    color: $brand-primary;
+    border-color: rgba($brand-primary, 0.55);
+    background: $btn-default-bg;
+  }
+}
+
 .btn.icon {
   border-radius: $border-radius-small;
 }
@@ -386,14 +499,24 @@ body.ap-nav-collapsed .sidenav {
   }
 }
 
+label {
+  color: $color-text-300;
+}
+
+.help-block {
+  color: $color-text-500;
+}
+
 .input-group-addon {
   border-radius: $border-radius-base;
+  color: $color-text-500;
 }
 
 // -------------------------------------------------- panels / cards / widgets
 .panel {
   border-radius: $border-radius-large;
   box-shadow: $ap-shadow-sm;
+  border-color: $color-border-200;
 }
 
 .panel-heading {
@@ -404,8 +527,20 @@ body.ap-nav-collapsed .sidenav {
   border-radius: 0 0 $border-radius-large $border-radius-large;
 }
 
+.panel-default > .panel-heading .panel-title {
+  @extend %ap-label;
+  font-size: $font-size-base - 1;
+  letter-spacing: 0.05em;
+  color: $color-text-300;
+
+  .icon {
+    color: $brand-primary;
+  }
+}
+
 #widgets {
   .widget {
+    border-color: $color-border-100;
     border-radius: $border-radius-base $border-radius-base 0 0;
     box-shadow: none;
 
@@ -421,10 +556,7 @@ body.ap-nav-collapsed .sidenav {
 
 // -------------------------------------------------- tablas
 .table > thead > tr > th {
-  font-size: $font-size-base - 2;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  @extend %ap-label;
   border-bottom-width: 1px;
 }
 
@@ -434,6 +566,8 @@ body.ap-nav-collapsed .sidenav {
 
 // -------------------------------------------------- modales
 .modal-content {
+  border: 1px solid $color-border-200;
+  border-top: 3px solid $brand-primary;
   border-radius: $modal-border-radius;
   box-shadow: $ap-shadow-md;
 }
@@ -443,6 +577,10 @@ body.ap-nav-collapsed .sidenav {
 
   .modal-title {
     font-weight: 600;
+
+    .icon {
+      color: $brand-primary;
+    }
   }
 }
 
@@ -452,6 +590,7 @@ body.ap-nav-collapsed .sidenav {
 
 .modal-footer {
   padding: 12px 20px;
+  border-top: 1px solid $color-border-200;
 
   .btn + .btn {
     margin-left: 6px;
@@ -459,18 +598,23 @@ body.ap-nav-collapsed .sidenav {
 }
 
 .modal-backdrop.in {
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 // -------------------------------------------------- dropdowns
 .dropdown-menu {
   border-radius: $border-radius-large;
+  border-color: $color-border-100;
   box-shadow: $ap-shadow-md;
   padding: 6px;
 
   > li > a {
     border-radius: $border-radius-base;
     transition: background-color 0.1s ease;
+
+    &:hover {
+      box-shadow: inset 3px 0 0 $brand-primary;
+    }
   }
 
   .divider {
@@ -487,13 +631,17 @@ body.ap-nav-collapsed .sidenav {
 
 .label {
   font-weight: 600;
-  border-radius: 999px;
-  padding: 0.2em 0.8em 0.3em;
+  border-radius: $border-radius-small;
+  padding: 0.25em 0.7em 0.3em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 72%;
 }
 
 // -------------------------------------------------- alertas / toastr
 .alert {
   border-radius: $border-radius-large;
+  border-left-width: 4px;
 }
 
 #toast-container > div {
@@ -543,13 +691,30 @@ body.ap-nav-collapsed .sidenav {
     + .btn {
       border-top: 1px solid $map-controls-btn-border-color;
     }
+
+    // activo: tinte + icono carmesí + barra lateral (menos pesado que
+    // una columna de botones rojos sólidos, el rojo queda para alertas)
+    &.active,
+    &.active:hover,
+    &.active:focus {
+      background: rgba($brand-primary, 0.1);
+      color: $brand-primary;
+      box-shadow: inset 3px 0 0 $brand-primary;
+    }
   }
 }
 
 // popups de Leaflet
 .leaflet-popup-content-wrapper {
   border-radius: $border-radius-large;
+  border-top: 3px solid $brand-primary;
   box-shadow: $ap-shadow-md;
+  background: $popup-body-bg;
+  color: $popup-body-color;
+}
+
+.leaflet-popup-tip {
+  background: $popup-body-bg;
 }
 
 .leaflet-container {
@@ -570,7 +735,7 @@ body.ap-nav-collapsed .sidenav {
 // -------------------------------------------------- bottombar / historial
 #bottom-history {
   border-top: 1px solid $color-border-100;
-  box-shadow: 0 -6px 18px -8px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 -6px 18px -8px rgba(0, 0, 0, 0.18);
 
   .bottom-history-header {
     border-bottom: 1px solid $color-border-200;
@@ -590,13 +755,23 @@ body.ap-nav-collapsed .sidenav {
 }
 
 // -------------------------------------------------- login
-// Fondo y color de texto: los configurados en Apariencia
-// (login_page_background_color / login_page_text_color), como en el
-// template original.
+// Grafito con un resplandor carmesí. El resplandor es translúcido:
+// si en Apariencia se configura un color o imagen de fondo, se ve
+// a través de él (ese estilo se inyecta después y manda).
 body.sign-in-layout {
+  background-color: $ap-graphite;
+  background-image:
+    radial-gradient(ellipse at 18% 0%, rgba($brand-primary, 0.42) 0%, rgba($brand-primary, 0) 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.25) 100%);
+
+  .sign-in-text {
+    color: $ap-on-graphite;
+  }
+
   .panel {
     box-shadow: $ap-shadow-md;
     border: 0;
+    border-top: 3px solid $brand-primary;
     border-radius: $border-radius-large + 4;
     overflow: hidden;
   }
@@ -605,8 +780,18 @@ body.sign-in-layout {
     border-radius: $border-radius-large + 4;
   }
 
+  .panel-body {
+    padding: 28px 28px 22px;
+  }
+
+  hr {
+    border-top-color: $color-border-200;
+  }
+
   .btn-primary {
     width: 100%;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 }
 
@@ -619,26 +804,26 @@ body.sign-in-layout {
 
 // -------------------------------------------------- dashboard
 #dashboard {
+  .modal-content {
+    background: $body-bg;
+    border-top: 0;
+  }
+
   .dashboard-block {
     margin-bottom: 20px;
 
     .panel.panel-default {
+      border: 1px solid $color-border-200;
+      border-top: 3px solid $brand-primary;
       box-shadow: $ap-shadow-sm;
       margin-bottom: 0;
       height: 100%;
-
-      .panel-heading .panel-title {
-        font-size: $font-size-base - 1;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
     }
   }
 }
 
 // KPI de estados de flota (bloque device_status_counts)
-// Puntos: colores semánticos del template (brand-*), no valores fijos.
+// Puntos: colores semánticos del tema (brand-*), no de marca.
 .ap-kpi-list {
   list-style: none;
   margin: 0;
@@ -674,7 +859,7 @@ body.sign-in-layout {
   .ap-kpi-value {
     font-family: $ap-font-mono;
     font-variant-numeric: tabular-nums;
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 600;
     line-height: 1;
     color: $color-text-100;
@@ -781,11 +966,31 @@ body.sign-in-layout {
   .admin-layout .panel {
     overflow-x: auto;
   }
+
+  // login: panel a borde de pantalla
+  body.sign-in-layout .panel-body {
+    padding: 20px 16px 16px;
+  }
+}
+
+// -------------------------------------------------- movimiento reducido
+@media (prefers-reduced-motion: reduce) {
+  .sidenav,
+  .sidebar.left,
+  #bottombar,
+  .btn,
+  .form-control,
+  .dropdown-menu > li > a,
+  .group-list > li,
+  .pagination > li > a,
+  .pagination > li > span,
+  #header .navbar-nav > li > a {
+    transition: none;
+  }
 }
 
 // -------------------------------------------------- plugins de formulario
-// datepicker / datetimepicker: el día activo toma el color de marca del
-// template en lugar del degradado azul propio del plugin
+// datepicker / datetimepicker: el día activo toma el carmesí de marca
 .datepicker,
 .datetimepicker {
   border-radius: $border-radius-large;

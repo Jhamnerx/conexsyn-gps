@@ -1,0 +1,179 @@
+// ===================================================================
+// Conexsyn / Self Security — base nocturna (centro de control)
+// Se importa ANTES de _base-conexsyn: estas variables ganan y el resto
+// (tipografía, radios, espaciados) se hereda de la base clara.
+// La cabecera y el rail quedan más oscuros que las superficies para
+// mantener la jerarquía. La marca nocturna (carmesí más luminoso) se
+// define en templates/conexsyn-dark.scss antes de importar este archivo.
+// ===================================================================
+
+// -------------------------------------------------- neutros nocturnos
+$color-bg-000: #171a1f;   // superficie
+$color-bg-100: #1e2228;   // superficie 2
+$color-bg-200: #262b32;
+$color-bg-300: #2f353d;
+
+$color-text-000: #ffffff;
+$color-text-100: #eef0f3;
+$color-text-200: #d3d7de;
+$color-text-300: #b8bec8;
+$color-text-400: #aab0ba;
+$color-text-500: #8f96a3;
+$color-text-600: #737b89;
+$color-text-700: #656d7a;
+$color-text-800: #4c5461;
+$color-text-900: #3b424d;
+
+$color-border-100: #2b3039;
+$color-border-200: #242931;
+$color-shadow:     rgba(0, 0, 0, 0.55);
+
+$gray-base:    #eef0f3;
+$gray-darker:  #d3d7de;
+$gray-dark:    #8f96a3;
+$gray:         #2f353d;
+$gray-light:   #262b32;
+$gray-lighter: #1e2228;
+
+$body-bg:    #0f1114;
+$text-color: #eef0f3;
+
+$close-color:       #ffffff;
+$close-text-shadow: none;
+
+// -------------------------------------------------- grafito (más oscuro que la superficie)
+$ap-graphite:          #0f1114;
+$ap-graphite-2:        #1e2228;
+$ap-graphite-border:   #262b32;
+$ap-on-graphite:       #f1f2f4;
+$ap-on-graphite-muted: #b4b9c3;
+$ap-on-graphite-icon:  #8e95a2;
+
+// -------------------------------------------------- sombras
+$ap-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+$ap-shadow-md: 0 12px 30px -10px rgba(0, 0, 0, 0.7);
+
+// -------------------------------------------------- headings / iconos
+$heading-color: #b8bec8;
+$icon-color:    #656d7a;
+
+// -------------------------------------------------- botones
+$btn-default-color:  #d3d7de;
+$btn-default-bg:     #1e2228;
+$btn-default-border: #2f353d;
+
+// -------------------------------------------------- formularios
+$input-bg:                #1e2228;
+$input-bg-disabled:       #262b32;
+$input-color:             #d3d7de;
+$input-color-focus:       #eef0f3;
+$input-border:            #2f353d;
+$input-bg-focus:          #171a1f;
+$input-color-placeholder: #656d7a;
+
+// -------------------------------------------------- checkbox
+$checkbox-background-color: #1e2228;
+$checkbox-border-color:     #3b424d;
+
+// -------------------------------------------------- tabs / navs
+$nav-link-hover-bg: #262b32;
+$nav-link-color:    #8f96a3;
+$nav-tabs-bg:       #171a1f;
+
+// -------------------------------------------------- tablas
+$table-bg-accent:       #1e2228;
+$table-bg-hover:        #262b32;
+$table-list-head-color: #8f96a3;
+$table-list-head-bg:    #1e2228;
+
+// -------------------------------------------------- modales / popups
+$modal-content-bg:          #171a1f;
+$modal-header-bg:           #171a1f;
+$modal-footer-bg:           #1e2228;
+$modal-header-border-color: #2b3039;
+$popup-header-bg:           #1e2228;
+$popup-body-bg:             #171a1f;
+$popup-title-color:         #eef0f3;
+$popup-body-color:          #b8bec8;
+
+// -------------------------------------------------- alertas (tintes sobre oscuro)
+$alert-success-bg:     rgba(47, 213, 116, 0.12);
+$alert-success-text:   #7be3a8;
+$alert-success-border: rgba(47, 213, 116, 0.35);
+$alert-info-bg:        rgba(91, 141, 246, 0.12);
+$alert-info-text:      #9dbcfa;
+$alert-info-border:    rgba(91, 141, 246, 0.35);
+$alert-warning-bg:     rgba(245, 178, 60, 0.12);
+$alert-warning-text:   #f8cb7c;
+$alert-warning-border: rgba(245, 178, 60, 0.35);
+$alert-danger-bg:      rgba(242, 109, 109, 0.12);
+$alert-danger-text:    #f79c9c;
+$alert-danger-border:  rgba(242, 109, 109, 0.35);
+
+$state-success-text: #7be3a8;
+$state-success-bg:   rgba(47, 213, 116, 0.12);
+$state-info-text:    #9dbcfa;
+$state-info-bg:      rgba(91, 141, 246, 0.12);
+$state-warning-text: #f8cb7c;
+$state-warning-bg:   rgba(245, 178, 60, 0.12);
+$state-danger-text:  #f79c9c;
+$state-danger-bg:    rgba(242, 109, 109, 0.12);
+
+// -------------------------------------------------- labels / badges
+$label-default-bg: #4c5461;
+$badge-bg:         #4c5461;
+$badge-active-bg:  #1e2228;
+
+// -------------------------------------------------- tooltips
+$tooltip-bg: #262b32;
+
+// -------------------------------------------------- sidebar / grupos
+$sidebar-bg:                #171a1f;
+$group-heading-bg:          #1e2228;
+$group-heading-hover-bg:    #262b32;
+$group-heading-color:       #d3d7de;
+$group-heading-hover-color: #eef0f3;
+
+// -------------------------------------------------- scrollbar
+$scrollbar-thumb-bg: #3b424d;
+
+// -------------------------------------------------- mapa
+$map-controls-btn-bg:           #171a1f;
+$map-controls-btn-color:        #d3d7de;
+$map-controls-btn-hover-bg:     #262b32;
+$map-controls-btn-hover-color:  #eef0f3;
+$map-controls-btn-border-color: #2b3039;
+
+// -------------------------------------------------- dropdowns
+$dropdown-bg:               #171a1f;
+$dropdown-border:           #2b3039;
+$dropdown-fallback-border:  #2b3039;
+$dropdown-divider-bg:       #242931;
+$dropdown-link-color:       #d3d7de;
+$dropdown-link-hover-color: #eef0f3;
+$dropdown-link-hover-bg:    #1e2228;
+$dropdown-icon-color:       #737b89;
+
+// -------------------------------------------------- paginación / listas / miniaturas
+$pagination-bg:           #171a1f;
+$pagination-color:        #d3d7de;
+$pagination-hover-bg:     #1e2228;
+$list-group-bg:           #171a1f;
+$list-group-border:       #2b3039;
+$list-group-hover-bg:     #1e2228;
+$list-group-link-color:   #d3d7de;
+$list-group-link-heading-color: #eef0f3;
+$thumbnail-bg:            #1e2228;
+$thumbnail-border:        #2b3039;
+
+// -------------------------------------------------- widgets / panels
+$widget-content-color:        #aab0ba;
+$widget-content-icon-color:   #4c5461;
+$widget-col-background-color: #1e2228;
+$panel-bg:                    #171a1f;
+$panel-default-text:          #aab0ba;
+$panel-default-heading-bg:    #1e2228;
+$panel-default-border:        #2b3039;
+$panel-inner-border:          #2b3039;
+$panel-footer-bg:             #1e2228;
+$stat-box-text-color:         #eef0f3;

@@ -1,13 +1,20 @@
 // ===================================================================
-// Conexsyn — modo nocturno
-// Colores: los del template original dark-blue (main-blue + base-dark).
-// Forma y tipografía: colouring/base-conexsyn.
-// Capa de estilos propia: layout/conexsyn.
+// Conexsyn / Self Security — modo nocturno (centro de control)
+// La marca nocturna se define aquí (carmesí más luminoso y enlaces
+// claros para mantener contraste sobre grafito); después se importa
+// la base nocturna, que gana sobre la base clara.
 // ===================================================================
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-@import '../colouring/main-blue';
-@import '../colouring/base-dark';
+@import '../colouring/main-conexsyn';
+
+$brand-primary:     #e0262e;
+$ap-primary-hover:  #ef3a42;
+$ap-primary-active: #c91e26;
+$link-color:        #ff6b6b;
+$link-hover-color:  #ff8f8f;
+
+@import '../colouring/base-conexsyn-dark';
 @import '../colouring/base-conexsyn';
 @import '../index';
 @import '../layout/conexsyn';
