@@ -574,6 +574,7 @@ return [
     'process' => [
         'insert_timeout' => env('PROC_INSERT_TIMEOUT', 60),
         'insert_limit' => env('PROC_INSERT_LIMIT', 30),
+        'insert_batch' => env('PROC_INSERT_BATCH', 200), // IMEIs que toma cada worker por viaje a Redis
         'reportdaily_timeout' => env('PROC_REPORT_TIMEOUT', 180),
         'reportdaily_limit' => env('PROC_REPORT_LIMIT', 2),
         'send_event_timeout' => env('PROC_SEND_EVENT_TIMEOUT', 120),

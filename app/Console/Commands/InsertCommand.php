@@ -11,6 +11,14 @@ use App\Console\ProcessManager;
 use App\Console\PositionsWriter;
 use Tobuli\Entities\UnregisteredDevice;
 
+/**
+ * Worker que vuelca las posiciones acumuladas en Redis a la base de datos.
+ *
+ * Varios procesos corren a la vez (limite tobuli.process.insert_limit); cada
+ * uno vive insert_timeout segundos. Los IMEIs se toman de la lista de reparto
+ * en lotes (tobuli.process.insert_batch) en vez de uno a uno: menos viajes a
+ * Redis y sin KEYS bloqueantes al rellenarla.
+ */
 class InsertCommand extends Command
 {
     protected $debug = false;
@@ -42,7 +50,7 @@ class InsertCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description.';
+    protected $description = 'Procesa las posiciones acumuladas en Redis y las inserta en la base de datos.';
 
     /**
      * Execute the console command.
@@ -57,6 +65,7 @@ class InsertCommand extends Command
 
         $timeout = config('tobuli.process.insert_timeout');
         $limit = config('tobuli.process.insert_limit');
+        $batchSize = (int) config('tobuli.process.insert_batch', 200);
 
         $this->positionsStack = new PositionsStack();
         $this->processManager = new ProcessManager($this->name, $timeout, $limit);
@@ -71,41 +80,59 @@ class InsertCommand extends Command
         {
             $start = microtime(true);
 
-            $imei = $this->process();
+            $taken = $this->processBatch($batchSize);
 
-            if($this->debug)
-                $this->line('Process: '.(microtime(true) - $start));
+            if ($this->debug)
+                $this->line(sprintf('Batch: %d imeis in %.3fs', $taken, microtime(true) - $start));
 
-            if ($imei)
-            {
-                $this->processManager->unlock($imei);
+            // nada pendiente: espera corta antes de volver a mirar
+            if ( ! $taken)
+                usleep(100000);
+        }
+    }
+
+    /**
+     * Toma un lote de IMEIs y los procesa uno a uno. Devuelve cuantos tomo.
+     */
+    private function processBatch(int $limit): int
+    {
+        $imeis = $this->positionsStack->nextBatch($limit);
+
+        if ( ! $imeis)
+            return 0;
+
+        foreach ($imeis as $index => $imei)
+        {
+            // se agoto el tiempo del proceso: lo que queda vuelve a la lista
+            if ( ! $this->processManager->canContinue()) {
+                $this->positionsStack->requeue(array_slice($imeis, $index));
+                break;
+            }
+
+            if ( ! $this->isValidImei($imei)) {
+                $this->positionsStack->deleteImei($imei);
                 continue;
             }
 
-            usleep(500000);
+            // otro proceso ya lo tiene
+            if ( ! $this->processManager->lock($imei))
+                continue;
+
+            try {
+                $this->processImei($imei);
+            } finally {
+                $this->processManager->unlock($imei);
+            }
         }
+
+        return count($imeis);
     }
 
-    private function process()
-    {
-        return $this->processByList();
-    }
-
-    private function processByList()
+    private function processImei($imei)
     {
         $start = microtime(true);
 
-        $imei = $this->getListUnlockedImei();
-
-        if($this->debug) {
-            $this->line('');
-            $this->line('Getting imei: ' . (microtime(true) - $start));
-        }
-
-        if ( ! $imei)
-            return false;
-
-        $start = microtime(true);
+        $data = null;
 
         $device = DeviceRepo::whereImei($imei);
 
@@ -115,7 +142,7 @@ class InsertCommand extends Command
 
             if ( ! $data) {
                 $this->positionsStack->deleteImei($imei);
-                return $imei;
+                return;
             }
 
             $device = DeviceRepo::getByImeiProtocol($data['imei'], $data['protocol']);
@@ -123,7 +150,6 @@ class InsertCommand extends Command
 
         if($this->debug)
             $this->line('Getting device: '.(microtime(true) - $start));
-
 
         if ( ! $device) {
             UnregisteredDevice::increase(
@@ -150,31 +176,6 @@ class InsertCommand extends Command
         } else {
             $this->positionsStack->deleteImei($imei);
         }
-
-        return $imei;
-    }
-
-    private function getListUnlockedImei()
-    {
-        $imei = null;
-
-        do
-        {
-            $_imei = $this->positionsStack->next();
-
-            if ( ! $this->isValidImei($_imei)) {
-                $this->positionsStack->deleteImei($_imei);
-                continue;
-            }
-
-            if ( ! $this->processManager->lock($_imei))
-                continue;
-
-            $imei = $_imei;
-
-        } while ($_imei && is_null($imei));
-
-        return $imei;
     }
 
     private function isValidImei($imei)

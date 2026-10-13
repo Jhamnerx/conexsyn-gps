@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel {
         'App\Console\Commands\CompressLogsCommand',
         'App\Console\Commands\UpdateIconsCommand',
         'App\Console\Commands\InsertCommand',
+        'App\Console\Commands\InsertStatsCommand',
         'App\Console\Commands\CheckPositionsCommand',
         'App\Console\Commands\CheckTimeCommand',
         'App\Console\Commands\DevicesTimezoneResetCommand',
