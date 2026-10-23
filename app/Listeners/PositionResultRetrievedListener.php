@@ -30,6 +30,10 @@ class PositionResultRetrievedListener
      */
     public function handle(PositionResultRetrieved $event)
     {
+        if (preg_match('/ICCID[:\s]*(\d{15,20})/i', $event->result, $matches)) {
+            (new \App\Services\IccidCollector())->add($event->device->name, $event->device->imei, $matches[1]);
+        }
+
         $settings = settings('position_notifications');
 
         if (empty($settings['send_to'])) {

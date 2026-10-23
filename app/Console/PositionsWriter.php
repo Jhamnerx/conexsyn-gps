@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Events\DeviceEngineChanged;
 use App\Events\DevicePositionChanged;
 use App\Events\PositionResultRetrieved;
+use App\Services\IccidCollector;
 use App\Services\Integrations\IntegrationPositionRecorder;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag as Bugsnag;
 use Illuminate\Support\Arr;
@@ -483,6 +484,10 @@ class PositionsWriter
             event(new PositionResultRetrieved($this->device, is_scalar($result) ? $result : json_encode($result)));
         }
 
+        if (($data['protocol'] ?? null) === 'gt06') {
+            $this->captureGt06Iccid($data);
+        }
+
         if (! $this->device->traccar)
             return;
 
@@ -639,6 +644,57 @@ class PositionsWriter
             $this->integrationRecorder = new IntegrationPositionRecorder();
 
         return $this->integrationRecorder;
+    }
+
+    /**
+     * Secuencia para que el GT06 reporte su ICCID. Los RESET# cortan la conexión,
+     * por eso se envía un paso por posición, cuando el equipo vuelve a conectar.
+     */
+    const GT06_ICCID_COMMANDS = ['ICCIDAUTO,1#', 'RESET#', 'SZCS#GT06ICCID=1', 'RESET#'];
+    const GT06_ICCID_STEP_DELAY = 60;
+    const GT06_ICCID_RETRY_HOURS = 24;
+
+    protected function captureGt06Iccid(array $data): void
+    {
+        $collector = new IccidCollector();
+
+        if ($iccid = $data['parameters']['iccid'] ?? null) {
+            $collector->add($this->device->name, $this->device->imei, (string)$iccid);
+            return;
+        }
+
+        if ($collector->has($this->device->imei)) {
+            return;
+        }
+
+        $cacheKey = 'gt06_iccid_cmd_step_' . $this->device->imei;
+        $state = Cache::get($cacheKey);
+        $step = $state ? $state['step'] + 1 : 0;
+
+        if ($step >= count(self::GT06_ICCID_COMMANDS)) {
+            return;
+        }
+
+        if ($state && time() - $state['at'] < self::GT06_ICCID_STEP_DELAY) {
+            return;
+        }
+
+        if (!$this->device->isConnected()) {
+            return;
+        }
+
+        // El TTL se renueva en cada paso: tras el último, el ciclo se repite en 24 h.
+        Cache::put($cacheKey, ['step' => $step, 'at' => time()], now()->addHours(self::GT06_ICCID_RETRY_HOURS));
+
+        try {
+            (new \Tobuli\Helpers\Tracker())->sendCommand([
+                'uniqueId'   => $this->device->imei,
+                'type'       => 'custom',
+                'attributes' => ['data' => self::GT06_ICCID_COMMANDS[$step]],
+            ]);
+        } catch (\Exception $e) {
+            // Silencia el error para no interrumpir el procesamiento de posiciones
+        }
     }
 
     protected function getEngineStatus($position)

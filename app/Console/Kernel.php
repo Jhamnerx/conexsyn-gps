@@ -75,6 +75,8 @@ class Kernel extends ConsoleKernel {
         'App\Console\Commands\Integrations\CleanIntegrationsCommand',
         'App\Console\Commands\ApplyDefaultAlertsCommand',
         'App\Console\Commands\DeviceIconsRestoreCommand',
+        'App\Console\Commands\IccidCollectCommand',
+        'App\Console\Commands\IccidExportCommand',
     ];
 
     /**
