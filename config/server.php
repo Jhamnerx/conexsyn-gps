@@ -7,6 +7,12 @@ return [
     'login_redirect_route' => env('LOGIN_REDIRECT_ROUTE', null),
     'entity_loader_page_limit' => env('ENTITY_LOADER_PAGE_LIMIT', 100),
 
+    // Webhook de posiciones (/api/webhook/positions). IPs separadas por coma; vacío = sin restricción.
+    'webhook_positions' => [
+        'protocol'    => env('WEBHOOK_POSITIONS_PROTOCOL', 'webhook'),
+        'allowed_ips' => env('WEBHOOK_POSITIONS_ALLOWED_IPS', '118.178.145.159'),
+    ],
+
     'throttle' => [
         'api' => [
             'login' => env('THROTTLE_API_LOGIN', '60,1'),

@@ -59,6 +59,7 @@ Route::group(['middleware' => ['auth.api', 'active_subscription'], 'namespace' =
 
 Route::group(['middleware' => [], 'namespace' => 'Api'], function () {
     Route::any('api/insert_position', ['uses' => 'ApiController@PositionsController#insert']);
+    Route::post('webhook/positions', ['uses' => 'ApiController@PositionsController#webhook']);
     Route::any('geo_address', ['as' => 'api.geo_address', 'uses' => 'ApiController@geoAddress']);
     Route::get('devices/public/{hash}', ['uses' => 'ApiController@getDevicesAll']);
 
