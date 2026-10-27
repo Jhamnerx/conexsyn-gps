@@ -420,16 +420,52 @@ body.ap-nav-collapsed .sidenav {
 // grupos de dispositivos
 .group-heading {
   border-radius: $border-radius-base;
+  background: $gray-lighter;
 
   > .group-title {
     @extend %ap-label;
-    font-size: $font-size-base - 1;
-    letter-spacing: 0.04em;
+    font-size: $font-size-base - 2;
+    letter-spacing: 0.05em;
+    color: $color-text-300;
+
+    // contador como pastilla en lugar de "(7)"
+    > .count {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 0 7px;
+      border-radius: 9px;
+      background: rgba($brand-primary, 0.1);
+      color: $brand-primary;
+      font-family: $ap-font-mono;
+      font-size: 10px;
+      line-height: 18px;
+      letter-spacing: 0;
+
+      &:before,
+      &:after {
+        content: none;
+      }
+    }
   }
 }
 
+// filas de dispositivo: la lista es display:table, así que los
+// separadores van en las celdas (los tr no pintan borde)
 .group-list > li {
   transition: background-color 0.12s ease, box-shadow 0.12s ease;
+
+  > .checkbox,
+  > .name,
+  > .details {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    vertical-align: middle;
+    border-bottom: 1px solid $color-border-200;
+  }
+
+  &:hover {
+    background: $gray-lighter;
+  }
 
   &.active {
     background: rgba($brand-primary, 0.06);
@@ -441,7 +477,47 @@ body.ap-nav-collapsed .sidenav {
   }
 
   > .name {
-    font-weight: 600;
+    [data-device="name"] {
+      font-weight: 600;
+      color: $color-text-100;
+    }
+
+    [data-device="time"] {
+      margin-top: 1px;
+      font-size: 10px;
+      letter-spacing: -0.02em;
+      color: $color-text-500;
+    }
+  }
+
+  > .details {
+    color: $color-text-600;
+
+    > * + * {
+      margin-left: 6px;
+    }
+
+    // velocidad como pastilla monoespaciada
+    [data-device="speed"] {
+      padding: 1px 7px;
+      border-radius: 10px;
+      background: $gray-lighter;
+      color: $color-text-400;
+      font-size: 11px;
+      line-height: 16px;
+    }
+
+    .btn.options {
+      color: $color-text-600;
+
+      &:hover {
+        color: $brand-primary;
+      }
+    }
+  }
+
+  &:hover > .details [data-device="speed"] {
+    background: $panel-bg;
   }
 }
 
@@ -452,6 +528,110 @@ body.ap-nav-collapsed .sidenav {
   width: 11px;
   height: 11px;
   box-shadow: 0 0 0 2px rgba($color-text-100, 0.06);
+}
+
+// -------------------------------------------------- iconos personalizados
+// Portados de assets/custom/js.js, cuyo skin inyectado se desactiva con
+// este tema. Rutas relativas a public/assets/css.
+$ap-custom-icons: '../custom/icons/';
+$ap-is-dark: lightness($panel-bg) < 50%;
+
+// los glifos monocromos (negros) se invierten en el tema nocturno; los
+// ilustrados a color se dejan tal cual
+$ap-mono-icon-filter: if($ap-is-dark, invert(1) brightness(0.85), none);
+
+%ap-custom-icon {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: middle;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  &:before,
+  &:after {
+    display: none;
+  }
+}
+
+@each $name, $file, $mono in (
+  (textual, 'textual.svg', true),
+  (door, 'door.svg', false),
+  (speed, 'speed.svg', false),
+  (acc, 'acc.svg', false),
+  (odometer, 'odometer.svg', true),
+  (battery, 'battery.svg', false),
+  (logical, 'logical.svg', false),
+  (engine_hours, 'engine_hours.svg', false),
+  (satellites, 'satellites.svg', false)
+) {
+  i.icon.#{$name} {
+    @extend %ap-custom-icon;
+    background-image: url($ap-custom-icons + $file);
+
+    @if $mono {
+      filter: $ap-mono-icon-filter;
+    }
+  }
+}
+
+// motor: encendido a color, apagado en gris
+i.icon.detect_engine {
+  @extend %ap-custom-icon;
+  background-image: url($ap-custom-icons + 'acc_off.svg');
+}
+
+.on i.icon.detect_engine {
+  background-image: url($ap-custom-icons + 'acc.svg');
+}
+
+[data-device="detect_engine"] {
+  font-size: 18px;
+}
+
+// vista previa de la dirección: ojo negro en claro, blanco en nocturno
+[data-device="preview"] a {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  background: url($ap-custom-icons + if($ap-is-dark, 'preview-black.svg', 'preview.svg')) center / 16px no-repeat;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  i {
+    opacity: 0;
+  }
+}
+
+// estado en la lista: círculo del color de estado con icono blanco
+// (wifi = sin movimiento, flecha = en movimiento, como en js.js)
+.group-list .details [data-device="status"] {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  box-shadow: 0 0 0 2px rgba($color-text-100, 0.06);
+
+  &:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url($ap-custom-icons + 'wifi.png') center / 60% no-repeat;
+    text-indent: 0;
+  }
+
+  &[style="background-color: green"]:before {
+    background-image: url($ap-custom-icons + 'arrow-right.svg');
+  }
+
+  &[style="background-color: yellow"]:before {
+    background-image: url($ap-custom-icons + 'wifi-black.png');
+  }
 }
 
 // -------------------------------------------------- botones
