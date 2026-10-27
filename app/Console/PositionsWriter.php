@@ -61,6 +61,8 @@ class PositionsWriter
     protected ?LbsInterface $lbsService = null;
     protected ?IntegrationPositionRecorder $integrationRecorder = null;
 
+    protected ?string $skipReason = null;
+
     protected ?string $recalculationDate = null;
     protected float $odometerDistance = 0;
     protected array $virtualOdometers = [];
@@ -116,15 +118,31 @@ class PositionsWriter
         $n = 0;
         $start = microtime(true);
 
+        $webhook = ['received' => 0, 'skipped' => []];
+
         foreach ($this->stack->getKeyDataList($key) as $data) {
             $s = microtime(true);
 
+            $isWebhook = WebhookPositionsLog::isWebhook($data['protocol'] ?? null);
+            $fixTime = $data['fixTime'] ?? null;
+
+            if ($isWebhook)
+                $webhook['received']++;
+
+            $this->skipReason = null;
             $data = $this->normalizeData($data);
 
             $n += microtime(true) - $s;
 
-            if (! $data)
+            if (! $data) {
+                if ($isWebhook)
+                    $webhook['skipped'][] = [
+                        'reason'  => $this->skipReason ?? 'invalid data',
+                        'fixTime' => $fixTime ? gmdate('Y-m-d H:i:s', (int)($fixTime / 1000)) : null,
+                    ];
+
                 continue;
+            }
 
             $this->proccess($data);
             $this->resetPrevPosition();
@@ -139,7 +157,31 @@ class PositionsWriter
             $this->line('Keys Process Time ' . (microtime(true) - $start));
         }
 
-        $this->write();
+        if (! $webhook['received']) {
+            $this->write();
+            return;
+        }
+
+        $context = [
+            'imei'        => $imei,
+            'device_id'   => $this->device->id,
+            'received'    => $webhook['received'],
+            'skipped'     => count($webhook['skipped']),
+            'to_write'    => count($this->positions),
+            'has_traccar' => (bool) $this->device->traccar,
+        ];
+
+        if ($webhook['skipped'])
+            $context['skipped_detail'] = array_slice($webhook['skipped'], 0, 20);
+
+        try {
+            $this->write();
+        } catch (\Throwable $e) {
+            WebhookPositionsLog::warning('write failed', $context + ['error' => $e->getMessage()]);
+            throw $e;
+        }
+
+        WebhookPositionsLog::info('written', $context);
     }
 
     protected function normalizeData($data)
@@ -204,18 +246,21 @@ class PositionsWriter
 
         if ($this->isSkipableOsmand($data)) {
             $this->line('Osmand skipable');
+            $this->skipReason = 'osmand skipable';
             return false;
         }
 
         //Outdated check for 90 days
         if (time() - strtotime($data['time']) > 7776000) {
             $this->line('Bad date - outdated: ' . $data['time']);
+            $this->skipReason = 'outdated (>90 days)';
             return false;
         }
 
         //Future check for 1 day
         if (strtotime($data['time']) - time() > 86400) {
             $this->line('Bad date - future: ' . $data['time']);
+            $this->skipReason = 'future (>1 day)';
             return false;
         }
 

@@ -70,6 +70,15 @@ return [
             'permission' => 0664,
         ],
 
+        // Webhook de posiciones (POST api/webhook/positions): recepcion, Redis e insert:run.
+        'webhook_positions' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/integrations/webhook-positions.log'),
+            'level' => env('INTEGRATIONS_LOG_LEVEL', 'info'),
+            'days' => (int) env('INTEGRATIONS_LOG_DAYS', 14),
+            'permission' => 0664,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

@@ -36,7 +36,7 @@ class PositionsStack
 
     public function add($data)
     {
-        $this->redis->lPush(self::PREFIX . '.' . $data['imei'], json_encode($data));
+        return $this->redis->lPush(self::PREFIX . '.' . $data['imei'], json_encode($data));
     }
 
     public function getImeis()

@@ -9,6 +9,7 @@ use CustomFacades\Repositories\DeviceRepo;
 use App\Console\PositionsStack;
 use App\Console\ProcessManager;
 use App\Console\PositionsWriter;
+use App\Console\WebhookPositionsLog;
 use Tobuli\Entities\UnregisteredDevice;
 
 /**
@@ -110,6 +111,7 @@ class InsertCommand extends Command
             }
 
             if ( ! $this->isValidImei($imei)) {
+                $this->logWebhookDiscard($imei, 'invalid imei');
                 $this->positionsStack->deleteImei($imei);
                 continue;
             }
@@ -152,6 +154,8 @@ class InsertCommand extends Command
             $this->line('Getting device: '.(microtime(true) - $start));
 
         if ( ! $device) {
+            $this->logWebhookDiscard($imei, 'unregistered device', $data);
+
             UnregisteredDevice::increase(
                 Arr::get($data, 'imei'),
                 Arr::get($data, 'protocol'),
@@ -174,8 +178,29 @@ class InsertCommand extends Command
                 $this->line('All writer: '.(microtime(true) - $start));
 
         } else {
+            $this->logWebhookDiscard($imei, 'inactive device', $data, $device);
             $this->positionsStack->deleteImei($imei);
         }
+    }
+
+    /**
+     * Deja rastro en el log del webhook cuando insert:run descarta una cola entera.
+     * Solo lee Redis (sin sacar nada) si no se tiene ya la primera posicion.
+     */
+    private function logWebhookDiscard($imei, $reason, $data = null, $device = null)
+    {
+        if ( ! $data)
+            $data = $this->positionsStack->getData($imei, false);
+
+        if ( ! $data || ! WebhookPositionsLog::isWebhook(Arr::get($data, 'protocol')))
+            return;
+
+        WebhookPositionsLog::warning('discarded by insert:run', [
+            'imei'      => $imei,
+            'reason'    => $reason,
+            'device_id' => $device->id ?? null,
+            'pending'   => $this->positionsStack->count($imei),
+        ]);
     }
 
     private function isValidImei($imei)
