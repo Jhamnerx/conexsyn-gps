@@ -90,7 +90,8 @@ class PositionsController extends Controller {
             if (!empty($item['datePublished']))
                 $attributes['datepublished'] = $item['datePublished'];
 
-            $imei = (string)$item['deviceId'];
+            // la plataforma manda la MAC con ':' (FC:18:69:19:F0:97); el dispositivo se registra sin ellos
+            $imei = str_replace(':', '', (string)$item['deviceId']);
 
             try {
                 $length = $stack->add([
