@@ -538,19 +538,241 @@ label {
   }
 }
 
+// widgets del dispositivo (dock inferior del mapa): tarjetas con cabecera
+// de etiqueta técnica, filas etiqueta/valor y vacío ilustrado. Mantiene
+// la altura de .widget-body (126px) y los anchos de tabla de _widgets.
 #widgets {
+  // las tarjetas flotan sobre el mapa en vez de ir sobre una franja blanca
+  .widgets-content {
+    padding: 8px 8px 0;
+    background: transparent;
+  }
+
+  &.collapsed .widgets-content {
+    padding: 0;
+  }
+
   .widget {
-    border-color: $color-border-100;
-    border-radius: $border-radius-base $border-radius-base 0 0;
-    box-shadow: none;
+    background: $panel-bg;
+    border: 1px solid $color-border-100;
+    border-bottom: 0;
+    border-radius: $border-radius-large $border-radius-large 0 0;
+    box-shadow: $ap-shadow-md;
+    overflow: hidden;
 
     + .widget {
-      margin-left: 6px;
+      margin-left: 8px;
     }
   }
 
   .widget-heading {
-    font-weight: 600;
+    padding: 8px 12px;
+    background: $panel-bg;
+    border-bottom: 1px solid $color-border-200;
+  }
+
+  .widget-title {
+    @extend %ap-label;
+    font-size: $font-size-base - 2;
+    line-height: 24px;
+    color: $color-text-200;
+
+    // icono en ficha tintada: identifica el widget sin otro color de acento
+    > .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      border-radius: $border-radius-base;
+      background: rgba($brand-primary, 0.1);
+      color: $brand-primary;
+      font-size: 13px;
+    }
+
+    [data-device="name"] {
+      color: $color-text-100;
+    }
+
+    .widget-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+    }
+
+    // estado como pastilla: el punto de color lo pone el JS
+    [data-device="status"] {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    [data-device="status-text"] {
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: $gray-lighter;
+      color: $color-text-400;
+      font-size: 10px;
+      line-height: 1.4;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  .widget-body {
+    padding: 4px 12px 0;
+    color: $color-text-400;
+    scrollbar-width: thin;
+    scrollbar-color: $color-border-100 transparent;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $color-border-100;
+      border-radius: 3px;
+    }
+  }
+
+  // filas etiqueta / valor
+  .table {
+    > tbody > tr > td {
+      padding: 5px 0;
+      line-height: 18px;
+      border-top: 0;
+      border-bottom: 1px solid $color-border-200;
+
+      // etiqueta
+      &:first-child {
+        padding-right: 12px;
+        color: $color-text-500;
+      }
+
+      // valor
+      + td {
+        color: $color-text-100;
+        font-weight: 600;
+      }
+    }
+
+    > tbody > tr:last-child > td {
+      border-bottom: 0;
+    }
+  }
+
+  .widget-device {
+    [data-device="time"],
+    [data-device="stop_duration"] {
+      font-family: $ap-font-mono;
+      font-weight: 500;
+      font-size: $font-size-base - 2;
+    }
+
+    // botón de vista previa de la dirección
+    [data-device="preview"] .btn,
+    [data-device="preview"] a {
+      border-radius: $border-radius-base;
+    }
+  }
+
+  .widget-sensors .table {
+    .icon,
+    .sensor-icon {
+      width: 18px;
+      font-size: 15px;
+      margin-right: 8px;
+      color: $color-text-600;
+      text-align: center;
+    }
+
+    .sensor-icon {
+      height: 18px;
+      object-fit: contain;
+    }
+
+    > tbody > tr > td + td {
+      font-family: $ap-font-mono;
+      font-weight: 500;
+      text-align: right;
+    }
+  }
+
+  .widget-recent-events .table > tbody > tr {
+    > td:first-child {
+      font-family: $ap-font-mono;
+      font-size: $font-size-base - 3;
+      color: $color-text-500;
+    }
+
+    > td + td {
+      font-weight: 500;
+    }
+
+    &[onclick]:hover > td {
+      background: rgba($brand-primary, 0.05);
+
+      + td {
+        color: $brand-primary;
+      }
+    }
+  }
+
+  .widget-streetview,
+  .widget-camera,
+  .widget-image {
+    .widget-body {
+      padding: 0;
+      background: $gray-lighter;
+
+      img {
+        display: block;
+      }
+    }
+  }
+
+  // vacío: marca circular discontinua + texto centrado, en lugar del
+  // dibujo de engranajes de gpswox
+  .widget-body .widget-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 230px;
+    background: none;
+    color: $color-text-500;
+
+    &:before {
+      content: "";
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px dashed rgba($brand-primary, 0.4);
+      background: rgba($brand-primary, 0.06);
+    }
+
+    > p {
+      margin: 0;
+      padding: 0;
+      font-size: $font-size-base - 1;
+    }
+
+    > .btn {
+      margin: 0;
+    }
+  }
+
+  // sin datos, _widgets oculta el vacío con display:none; se respeta
+  .widget-body > * + .widget-empty {
+    display: none;
+  }
+
+  .widget-body .table:empty + .widget-empty,
+  .widget-image .widget-body .widget-empty {
+    display: flex;
   }
 }
 
